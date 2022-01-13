@@ -23,7 +23,7 @@ def search(update: Update, context: CallbackContext) -> None:
     if len(context.args[0]) < 3:
         update.message.reply_text("Please enter a query longer than 3 chars.")
     else:
-        with open('croatia.txt', 'r',encoding="utf-8") as file:
+        with open('sample.txt', 'r',encoding="utf-8") as file:
             count = 0
             results = []
             for line in file:
