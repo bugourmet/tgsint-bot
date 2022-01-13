@@ -23,7 +23,7 @@ def search(update: Update, context: CallbackContext) -> None:
     if len(context.args[0]) < 3:
         update.message.reply_text("Please enter a query longer than 3 chars.")
     else:
-        with open('sample.txt', 'r',encoding="utf-8") as file:
+        with open('croatia.txt', 'r',encoding="utf-8") as file:
             count = 0
             results = []
             for line in file:
@@ -98,7 +98,7 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
 
 
 def help(update, context):
-    update.message.reply_text('Usage: /command <query>' + '\n' + 'Available commands:' + '\n' + '/find - Search trough sample.txt' + '\n' + '/sub - Check for subdomains' + '\n' + '/whois - Get domain WHOIS info' + '\n' + '/ports - Scan the target for open ports,checks 100 most common ports.')
+    update.message.reply_text('Usage: /command <query>' + '\n' + 'Available commands:' + '\n' + '/find - Search trough sample.txt' + '\n' + '/sub - Check for subdomains' + '\n' + '/whois - Get domain WHOIS info' + '\n' + '/shodan - Scan the target using shodan.')
 
 def main() -> None:
     # Create the updater and pass it your bot's token.
