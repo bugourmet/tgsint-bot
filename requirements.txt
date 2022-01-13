@@ -1,4 +1,5 @@
-python_telegram_bot==13.1
-requests==2.22.0
+python_telegram_bot==13.9
+python_whois==0.7.3
+requests==2.25.0
+shodan==1.26.0
 telegram==0.0.1
-beautifulsoup4==4.10.0
