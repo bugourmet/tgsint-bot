@@ -9,7 +9,7 @@ import json
 from telegram.ext.filters import DataDict
 import whois
 import shodan
-
+from bs4 import BeautifulSoup
 import config as cfg
 
 logging.basicConfig(
@@ -96,9 +96,58 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
     except(shodan.APIError,TypeError,KeyError) as e:
         update.message.reply_text(str(e))
 
+def bihreg(update: Update, context: CallbackContext) -> None:
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:88.0) Gecko/20100101 Firefox/88.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Referer': 'https://www.bzkbih.ba/',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://www.bzkbih.ba',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
+        'Sec-GPC': '1',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'TE': 'trailers',
+    }
+
+    params = (
+        ('kat', '82'),
+    )
+
+    data = {
+    'searchRegNr': context.args[0],
+    'searchDate': '01.10.2021',
+    'third_email': '',
+    'action': 'doSearch',
+    'mode': 'print',
+    'btnSearch': 'TRAZI'
+    }
+
+    response = requests.post('https://www.bzkbih.ba/ba/stream.php', headers=headers, params=params, data=data)
+    soup = BeautifulSoup(response.content, 'lxml')
+    result = soup.find("td", {"colspan": "2"})
+
+    update.message.reply_text(result.text)
+
 
 def help(update, context):
-    update.message.reply_text('Usage: /command <query>' + '\n' + 'Available commands:' + '\n' + '/find - Search trough sample.txt' + '\n' + '/sub - Check for subdomains' + '\n' + '/whois - Get domain WHOIS info' + '\n' + '/shodan - Scan the target using shodan.')
+    update.message.reply_text("""Usage:  /command <query> \n
+      Available commands:
+      /find - Search trough sample.txt
+      /sub - Check for subdomains
+      /whois - WHOIS lookup
+      /shodan - Scan the target using shodan.
+      /bihreg - Lookup info on bosnian car license plates.
+    """)
+
 
 def main() -> None:
     # Create the updater and pass it your bot's token.
@@ -110,6 +159,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("domains", subdomains, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("whois", who, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("shodan", shodansearch, Filters.user(user_id=cfg.users)))
+    dispatcher.add_handler(CommandHandler("bihreg", bihreg, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("help", help))
 
     # Start the bot.
