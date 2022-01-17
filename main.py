@@ -1,3 +1,4 @@
+from cmath import log
 from requests.api import head
 from requests.models import Response
 from telegram import Update, message, update
@@ -20,53 +21,60 @@ logger = logging.getLogger(__name__)
 
 
 def search(update: Update, context: CallbackContext) -> None:
-    if len(context.args[0]) < 3:
-        update.message.reply_text("Please enter a query longer than 3 chars.")
-    else:
-        with open('sample.txt', 'r',encoding="utf-8") as file:
-            count = 0
-            results = []
-            for line in file:
-                if re.search(context.args[0],line, re.IGNORECASE):
-                    count += 1
-                    results.append(line)
-                    
-            update.message.reply_text('TOTAL MATCHES FOUND: '+ str(count))
-            if count>0:
-                joined_string = "\n".join(results)
-                if len(joined_string) > 4096: #Split the message if it's too big(max chars in telegram is 4096)
-                    for x in range(0, len(joined_string), 4096):
-                        update.message.reply_text(joined_string[x:x+4096])
-                else:
-                 update.message.reply_text(joined_string)
+    try:
+        response = requests.get("http://localhost:3000/post/" + context.args[0])
+        data = []
+        reply = ''
+        jobjects = json.loads(response.text)
+        for jobj in jobjects:
+            #update.message.reply_text(jobj["name"])
+            data.append('Phone Number: ' + str(jobj["phonenum"]))
+            data.append('FB id: ' + str(jobj["fbid"]))
+            data.append('Name: ' + jobj["name"])
+            data.append('Surname: ' + jobj["surname"])
+            data.append('Sex: ' + jobj["sex"])
+            data.append('Extra Info: ' + str(jobj["extra"]))
+            reply = '\n'.join(data)
+            update.message.reply_text(reply)
+    except requests.exceptions.ConnectionError as e:
+        print(e)
+    except requests.exceptions.RequestException as e:
+        print(e)
+    except KeyError as e:
+        print(e)
 
 
 def subdomains(update: Update, context: CallbackContext) -> None:
-    if len(context.args[0]) < 3:
-        update.message.reply_text("Please enter a query longer than 3 chars.")
-    else:
-        url = "https://api.securitytrails.com/v1/domain/" + context.args[0] + "/subdomains?children_only=false&include_inactive=false"
+    try:
+        if len(context.args[0]) < 3:
+            update.message.reply_text("Please enter a query longer than 3 chars.")
+        else:
+            url = "https://api.securitytrails.com/v1/domain/" + context.args[0] + "/subdomains?children_only=false&include_inactive=false"
 
-    headers = {
-        "Accept": "application/json",
-        "APIKEY": cfg.SCTRAILS_API_KEY
-        }
-    
-    reply = ''
-    domains = []
-    response = requests.request("GET", url, headers=headers)
-    json_data = json.loads(response.text)
-    
-    for domain in json_data['subdomains']:
-        domains.append(domain + '.' + context.args[0])
-        reply = '\n'.join(domains)
-    update.message.reply_text(('FOUND '+ str(json_data['subdomain_count']) + ' DOMAINS :') + '\n'+ reply)
-
+        headers = {
+            "Accept": "application/json",
+            "APIKEY": cfg.SCTRAILS_API_KEY
+            }
+        
+        reply = ''
+        domains = []
+        response = requests.request("GET", url, headers=headers)
+        json_data = json.loads(response.text)
+        
+        for domain in json_data['subdomains']:
+            domains.append(domain + '.' + context.args[0])
+            reply = '\n'.join(domains)
+        update.message.reply_text(('FOUND '+ str(json_data['subdomain_count']) + ' DOMAINS :') + '\n'+ reply)
+    except requests.exceptions.ConnectionError as e:
+        print(e)
+    except requests.exceptions.RequestException as e:
+        print(e)
+    except KeyError as e:
+        print(e)
 
 def who(update: Update, context: CallbackContext) -> None:
-    w = whois.whois(context.args[0])
-    update.message.reply_text(w.text)
-
+        w = whois.whois(context.args[0])
+        update.message.reply_text(w.text)
 
 def shodansearch(update: Update, context: CallbackContext) -> None:
     try:
@@ -97,52 +105,58 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(str(e))
 
 def bihreg(update: Update, context: CallbackContext) -> None:
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:88.0) Gecko/20100101 Firefox/88.0',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': 'https://www.bzkbih.ba/',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Origin': 'https://www.bzkbih.ba',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-User': '?1',
-        'Sec-GPC': '1',
-        'Pragma': 'no-cache',
-        'Cache-Control': 'no-cache',
-        'TE': 'trailers',
-    }
+    try:
 
-    params = (
-        ('kat', '82'),
-    )
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:88.0) Gecko/20100101 Firefox/88.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Referer': 'https://www.bzkbih.ba/',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': 'https://www.bzkbih.ba',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-User': '?1',
+            'Sec-GPC': '1',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache',
+            'TE': 'trailers',
+        }
 
-    data = {
-    'searchRegNr': context.args[0],
-    'searchDate': '01.10.2021',
-    'third_email': '',
-    'action': 'doSearch',
-    'mode': 'print',
-    'btnSearch': 'TRAZI'
-    }
+        params = (
+            ('kat', '82'),
+        )
 
-    response = requests.post('https://www.bzkbih.ba/ba/stream.php', headers=headers, params=params, data=data)
-    soup = BeautifulSoup(response.content, 'lxml')
-    result = soup.find("td", {"colspan": "2"})
+        data = {
+        'searchRegNr': context.args[0],
+        'searchDate': '01.10.2021',
+        'third_email': '',
+        'action': 'doSearch',
+        'mode': 'print',
+        'btnSearch': 'TRAZI'
+        }
 
-    update.message.reply_text(result.text)
+        response = requests.post('https://www.bzkbih.ba/ba/stream.php', headers=headers, params=params, data=data)
+        soup = BeautifulSoup(response.content, 'lxml')
+        result = soup.find("td", {"colspan": "2"})
+
+        update.message.reply_text(result.text)
+    except requests.exceptions.ConnectionError as e:
+        print(e)
+    except requests.exceptions.RequestException as e:
+        print(e)
 
 
 def help(update, context):
     update.message.reply_text("""Usage:  /command <query> \n
       Available commands:
       /find - Search trough sample.txt
-      /sub - Check for subdomains
+      /domains - Check for subdomains
       /whois - WHOIS lookup
       /shodan - Scan the target using shodan.
       /bihreg - Lookup info on bosnian car license plates.
