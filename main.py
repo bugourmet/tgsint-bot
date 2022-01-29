@@ -1,4 +1,3 @@
-from cmath import log
 from requests.api import head
 from requests.models import Response
 from telegram import Update, message, update
