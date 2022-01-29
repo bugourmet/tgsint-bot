@@ -1,8 +1,6 @@
 # tgsint 
 
-tgsint is a OSINT telegram bot written in python for subdomain enumeration and facebook data leak search.
-
-Facebook data leak is not provided in this repo,instead there's a sample.txt file which you can populate and use the telegram bot to search for results.
+tgsint is a OSINT telegram bot written in python.
 
 ## Installation
 
@@ -11,6 +9,9 @@ Install necessary dependencies.
 ```python
 pip install -r requirements.txt
 ```
+
+Set up [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
+
 ## Configuration
 
 #### Open `config.py` and add required keys/tokens...
@@ -35,7 +36,7 @@ TELEGRAM BOT:
 
 ## Features
 
-1. Phone number lookup trough [tgsint-api]((https://github.com/runtimeterrorist/tgsint-api)
+1. Phone number lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api)
 2. Check for subdomains associated with target domain name.
 3. WHOIS Lookup
 4. Shodan host search (gathers host IP address,CVE data and open ports)
