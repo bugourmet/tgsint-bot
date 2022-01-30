@@ -38,9 +38,10 @@ TELEGRAM BOT:
 
 1. Phone number lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api)
 2. Check for subdomains associated with target domain name.
-3. WHOIS Lookup
-4. Shodan host search (gathers host IP address,CVE data and open ports)
-5. Lookup information on bosnian car licence plates
+3. WHOIS Lookup¸.
+4. Shodan host search (gathers host IP address,CVE data and open ports).
+5. Lookup information on bosnian car licence plates.
+6. Lookup information on croatian car licence plates.
 
 #### TODO:
 
