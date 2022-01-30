@@ -10,6 +10,7 @@ import shodan
 from bs4 import BeautifulSoup
 import config as cfg
 
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
@@ -69,9 +70,11 @@ def subdomains(update: Update, context: CallbackContext) -> None:
     except KeyError as e:
         print(e)
 
+
 def who(update: Update, context: CallbackContext) -> None:
         w = whois.whois(context.args[0])
         update.message.reply_text(w.text)
+
 
 def shodansearch(update: Update, context: CallbackContext) -> None:
     try:
@@ -100,6 +103,7 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
 
     except(shodan.APIError,TypeError,KeyError) as e:
         update.message.reply_text(str(e))
+
 
 def bihreg(update: Update, context: CallbackContext) -> None:
     try:
@@ -149,7 +153,8 @@ def bihreg(update: Update, context: CallbackContext) -> None:
         print(e)
     except requests.exceptions.RequestException as e:
         print(e)
-    
+
+
 def croreg(update: Update, context: CallbackContext) -> None:
     try:
         if len(context.args[0]) < 3:
@@ -198,10 +203,11 @@ def croreg(update: Update, context: CallbackContext) -> None:
     except KeyError as e:
         print(e)
 
+
 def help(update, context):
     update.message.reply_text("""Usage:  /command <query> \n
       Available commands:
-      /find <phonenumber> - Search trough sample.txt
+      /find <phonenumber> - Search for a phone number info using tgsint-api.
       /domains - Check for subdomains
       /whois - WHOIS lookup
       /shodan - Scan the target using shodan.
@@ -231,3 +237,10 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
+
+#TODO
+#add DB entries
+#full backend and frontend running version rewritten in js with user auth
+#dockerize everything
+#
