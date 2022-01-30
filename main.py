@@ -1,6 +1,3 @@
-from errno import EPROTONOSUPPORT
-from requests.api import head
-from requests.models import Response
 from telegram import Update, message, update
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
 import logging
