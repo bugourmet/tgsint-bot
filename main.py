@@ -25,15 +25,19 @@ def search(update: Update, context: CallbackContext) -> None:
         reply = ''
         jobjects = json.loads(response.text)
         for jobj in jobjects:
-            #update.message.reply_text(jobj["name"])
-            data.append('Phone Number: ' + str(jobj["phonenum"]))
-            data.append('FB id: ' + str(jobj["fbid"]))
-            data.append('Name: ' + jobj["name"])
-            data.append('Surname: ' + jobj["surname"])
-            data.append('Sex: ' + jobj["sex"])
-            data.append('Extra Info: ' + str(jobj["extra"]))
-            reply = '\n'.join(data)
-            update.message.reply_text(reply)
+            if jobj == "error":
+                update.message.reply_text("User not found!")
+            else:
+                #update.message.reply_text(jobj["name"])
+                data.append('Phone Number: +' + str(jobj["phonenum"]))
+                data.append('FB link:  https://www.facebook.com/' + str(jobj["fbid"]))
+                data.append('Name: ' + jobj["name"])
+                data.append('Surname: ' + jobj["surname"])
+                data.append('Sex: ' + jobj["sex"])
+                data.append('Extra Info: ' + str(jobj["extra"]))
+                reply = '\n'.join(data)
+                update.message.reply_text(reply)
+
     except requests.exceptions.ConnectionError as e:
         print(e)
     except requests.exceptions.RequestException as e:
