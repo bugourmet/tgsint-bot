@@ -76,9 +76,11 @@ def subdomains(update: Update, context: CallbackContext) -> None:
 
 
 def who(update: Update, context: CallbackContext) -> None:
-        w = whois.whois(context.args[0])
-        update.message.reply_text(w.text)
-
+    try:
+        update.message.reply_text(whois.whois(context.args[0]))
+    except:
+        update.message.reply_text("Couldn't resolve!")
+        
 
 def shodansearch(update: Update, context: CallbackContext) -> None:
     try:
@@ -241,10 +243,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-
-#TODO
-#add DB entries
-#full backend and frontend running version rewritten in js with user auth
-#dockerize everything
-#
