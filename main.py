@@ -1,7 +1,6 @@
 from telegram import Update, message, update
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
 import logging
-import re
 import requests
 import json
 from telegram.ext.filters import DataDict
@@ -63,10 +62,15 @@ def subdomains(update: Update, context: CallbackContext) -> None:
         response = requests.request("GET", url, headers=headers)
         json_data = json.loads(response.text)
         
-        for domain in json_data['subdomains']:
-            domains.append(domain + '.' + context.args[0])
-            reply = '\n'.join(domains)
-        update.message.reply_text(('FOUND '+ str(json_data['subdomain_count']) + ' DOMAINS :') + '\n'+ reply)
+        if "count" in json_data:
+            update.message.reply_text("No subdomains found for given domain!")
+        elif (json_data["meta"]) == {"limit_reached": "True"}:
+            update.message.reply_text("API requests limit reached!")
+        else:
+            for domain in json_data['subdomains']:
+                domains.append(domain + '.' + context.args[0])
+                reply = '\n'.join(domains)
+            update.message.reply_text(('FOUND '+ str(json_data['subdomain_count']) + ' DOMAINS :') + '\n'+ reply)
     except requests.exceptions.ConnectionError as e:
         print(e)
     except requests.exceptions.RequestException as e:
@@ -153,7 +157,10 @@ def bihreg(update: Update, context: CallbackContext) -> None:
             response = requests.post('https://www.bzkbih.ba/ba/stream.php', headers=headers, params=params, data=data)
             soup = BeautifulSoup(response.content, 'lxml')
             result = soup.find("td", {"colspan": "2"})
-            update.message.reply_text(result.text)
+            if "vozilo se ne može pronaći" in result.text:
+                update.message.reply_text("Vehicle Details Not Found!")
+            else:
+                update.message.reply_text(result.text)
 
     except requests.exceptions.ConnectionError as e:
         print(e)
@@ -189,19 +196,22 @@ def croreg(update: Update, context: CallbackContext) -> None:
             data = []
             reply = ''
             jobjects = json.loads(response.text)
-            data.append('Istek Police: ' + str(jobjects["vehiclePolicyDetails"]["policyExpirationDate"]))
-            data.append('Broj Police: ' + str(jobjects["vehiclePolicyDetails"]["policyNumber"]))
-            data.append('VIN: ' + str(jobjects["vinNumber"]))
-            data.append('Tip Automobila: ' + str(jobjects["vehicleType"]))
-            data.append('Marka: ' + str(jobjects["vehicleManufacturerName"]))
-            data.append('Model: ' + str(jobjects["model"]))
-            data.append('Tip Goriva: ' + str(jobjects["fuelType"]))
-            data.append('Godina Proizvodnje: ' + str(jobjects["yearOfManufacture"]))
-            data.append('Boja: ' + str(jobjects["color"]))
-            data.append('Snaga(kW): ' + str(jobjects["kw"]))
-            reply = '\n'.join(data)
-            update.message.reply_text(reply)
-
+            if "statusCode" in jobjects:
+                update.message.reply_text("Vehicle Details Not Found!")
+            else:
+                data.append('Istek Police: ' + str(jobjects["vehiclePolicyDetails"]["policyExpirationDate"]))
+                data.append('Broj Police: ' + str(jobjects["vehiclePolicyDetails"]["policyNumber"]))
+                data.append('VIN: ' + str(jobjects["vinNumber"]))
+                data.append('Tip Automobila: ' + str(jobjects["vehicleType"]))
+                data.append('Marka: ' + str(jobjects["vehicleManufacturerName"]))
+                data.append('Model: ' + str(jobjects["model"]))
+                data.append('Tip Goriva: ' + str(jobjects["fuelType"]))
+                data.append('Godina Proizvodnje: ' + str(jobjects["yearOfManufacture"]))
+                data.append('Boja: ' + str(jobjects["color"]))
+                data.append('Snaga(kW): ' + str(jobjects["kw"]))
+                reply = '\n'.join(data)
+                update.message.reply_text(reply)
+            
     except requests.exceptions.ConnectionError as e:
         print(e)
     except requests.exceptions.RequestException as e:
