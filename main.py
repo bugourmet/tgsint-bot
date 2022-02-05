@@ -1,4 +1,4 @@
-from telegram import Update, message, update
+from telegram import Update
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
 import logging
 import requests
@@ -10,16 +10,14 @@ from bs4 import BeautifulSoup
 import config as cfg
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+#logging.basicConfig(filename='log.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-
-def search(update: Update, context: CallbackContext) -> None:
+def find(update: Update, context: CallbackContext) -> None:
     try:
-        response = requests.get("http://localhost:3000/post/" + context.args[0])
+        response = requests.get("http://localhost:3000/api/" + context.args[0] + "/" + context.args[1])
         data = []
         reply = ''
         jobjects = json.loads(response.text)
@@ -27,23 +25,55 @@ def search(update: Update, context: CallbackContext) -> None:
             if jobj == "error":
                 update.message.reply_text("User not found!")
             else:
-                #update.message.reply_text(jobj["name"])
-                data.append('Phone Number: +' + str(jobj["phonenum"]))
+                data.append('\nPhone Number: +' + str(jobj["phonenum"]))
                 data.append('FB link:  https://www.facebook.com/' + str(jobj["fbid"]))
                 data.append('Name: ' + jobj["name"])
                 data.append('Surname: ' + jobj["surname"])
                 data.append('Sex: ' + jobj["sex"])
                 data.append('Extra Info: ' + str(jobj["extra"]))
-                reply = '\n'.join(data)
-                update.message.reply_text(reply)
-
+                reply = '\n'.join(data) 
+        update.message.reply_text(reply)
     except requests.exceptions.ConnectionError as e:
         print(e)
     except requests.exceptions.RequestException as e:
         print(e)
     except KeyError as e:
         print(e)
+    except IndexError:
+        update.message.reply_text("Missing argument!")
 
+
+def phone(update: Update, context: CallbackContext) -> None: #fix error that is thrown if no argument is passed (/phone without args)
+    try:
+        if len(context.args[0]) < 8:
+            update.message.reply_text("Please enter a longer query.")
+        else:
+            if "+" in context.args[0]:
+                context.args[0]=(context.args[0]).replace("+","")
+            response = requests.get("http://localhost:3000/api/phone/" + context.args[0])
+            data = []
+            reply = ''
+            jobjects = json.loads(response.text)
+            for jobj in jobjects:
+                if jobj == "error":
+                    update.message.reply_text("User not found!")
+                else:
+                    data.append('Phone Number: +' + str(jobj["phonenum"]))
+                    data.append('FB link:  https://www.facebook.com/' + str(jobj["fbid"]))
+                    data.append('Name: ' + jobj["name"])
+                    data.append('Surname: ' + jobj["surname"])
+                    data.append('Sex: ' + jobj["sex"])
+                    data.append('Extra Info: ' + str(jobj["extra"]))
+                    reply = '\n'.join(data)
+                    update.message.reply_text(reply)
+    except requests.exceptions.ConnectionError as e:
+        print(e)
+    except requests.exceptions.RequestException as e:
+        print(e)
+    except KeyError as e:
+        print(e)
+    except IndexError:
+        update.message.reply_text("Missing argument!")
 
 def subdomains(update: Update, context: CallbackContext) -> None:
     try:
@@ -82,9 +112,8 @@ def subdomains(update: Update, context: CallbackContext) -> None:
 def who(update: Update, context: CallbackContext) -> None:
     try:
         update.message.reply_text(whois.whois(context.args[0]))
-    except:
-        update.message.reply_text("Couldn't resolve!")
-        
+    except IndexError:
+        update.message.reply_text("Missing argument!")
 
 def shodansearch(update: Update, context: CallbackContext) -> None:
     try:
@@ -113,7 +142,8 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
 
     except(shodan.APIError,TypeError,KeyError) as e:
         update.message.reply_text(str(e))
-
+    except IndexError:
+        update.message.reply_text("Missing argument!")
 
 def bihreg(update: Update, context: CallbackContext) -> None:
     try:
@@ -166,7 +196,8 @@ def bihreg(update: Update, context: CallbackContext) -> None:
         print(e)
     except requests.exceptions.RequestException as e:
         print(e)
-
+    except IndexError:
+        update.message.reply_text("Missing argument!")
 
 def croreg(update: Update, context: CallbackContext) -> None:
     try:
@@ -218,12 +249,15 @@ def croreg(update: Update, context: CallbackContext) -> None:
         print(e)
     except KeyError as e:
         print(e)
+    except IndexError:
+        update.message.reply_text("Missing argument!")
 
 
 def help(update, context):
     update.message.reply_text("""Usage:  /command <query> \n
       Available commands:
-      /find <phonenumber> - Search for a phone number info using tgsint-api.
+      /find <Name:Surname> - Search for a person by name&surname (case sensitive).
+      /phone - Search for a a person by phonenumber (country code required e.g. 385)
       /domains - Check for subdomains
       /whois - WHOIS lookup
       /shodan - Scan the target using shodan.
@@ -238,12 +272,13 @@ def main() -> None:
     
     # Get the dispatcher to register handlers.
     dispatcher = bot.dispatcher
-    dispatcher.add_handler(CommandHandler("find", search, Filters.user(user_id=cfg.users)))
+    dispatcher.add_handler(CommandHandler("phone", phone, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("domains", subdomains, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("whois", who, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("shodan", shodansearch, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("bihreg", bihreg, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=cfg.users)))
+    dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=cfg.users))) 
     dispatcher.add_handler(CommandHandler("help", help))
 
     # Start the bot.
@@ -253,3 +288,8 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
+#TODO
+#add results limit to avoid telegram message rate limiting
+#ADD ZOOMEYE SUPPORT for scans
+

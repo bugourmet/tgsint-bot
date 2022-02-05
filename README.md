@@ -1,6 +1,7 @@
 # tgsint 
+[in development]
 
-tgsint is a OSINT telegram bot written in python.
+tgsint is a OSINT and pentesting telegram bot written in python.
 
 ## Installation
 
@@ -36,20 +37,18 @@ TELEGRAM BOT:
 
 ## Features
 
-1. Phone number lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api)
-2. Check for subdomains associated with target domain name.
-3. WHOIS Lookup¸.
-4. Shodan host search (gathers host IP address,CVE data and open ports).
-5. Lookup information on bosnian car licence plates.
-6. Lookup information on croatian car licence plates.
+1. Phone number lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
+2. Name & Surname lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
+3. Check for subdomains associated with target domain name.
+4. WHOIS Lookup.
+5. Shodan host search (gathers host IP address,CVE data and open ports).
+6. Lookup information on bosnian car licence plates.
+7. Lookup information on croatian car licence plates.
 
 #### TODO:
 
 ```bash
-- error handling
-- port scanning
-- bot response formatting
-- clean up the code
+- Zoomeye scans
 ```
 
 ## Contributing
