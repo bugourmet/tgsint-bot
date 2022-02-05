@@ -1,4 +1,4 @@
-# tgsint 
+# tgsint-bot
 [in development]
 
 tgsint is a OSINT and pentesting telegram bot written in python.
