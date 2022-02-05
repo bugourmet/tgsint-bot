@@ -279,7 +279,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("bihreg", bihreg, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=cfg.users)))
     dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=cfg.users))) 
-    dispatcher.add_handler(CommandHandler("help", help))
+    dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=cfg.users)))
 
     # Start the bot.
     bot.start_polling()
