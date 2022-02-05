@@ -1,4 +1,4 @@
-from telegram import Update
+from telegram import Update,message, update
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
 import logging
 import requests
@@ -290,6 +290,7 @@ if __name__ == '__main__':
     main()
 
 #TODO
-#add results limit to avoid telegram message rate limiting
+#add results limit to avoid telegram message rate limiting for /find command
+#add tehnical examination details for /croreg 
 #ADD ZOOMEYE SUPPORT for scans
 
