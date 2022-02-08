@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def find(update: Update, context: CallbackContext) -> None:
     try:
-        response = requests.get("http://localhost:3000/api/" + context.args[0] + "/" + context.args[1])
+        response = requests.get(cfg.API_URL + context.args[0] + "/" + context.args[1])
         data = []
         reply = ''
         jobjects = json.loads(response.text)
@@ -222,7 +222,7 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 'Cache-Control': 'no-cache',
             }
 
-            response = requests.post('https://api.laqo.hr/webshop/ace/api/v1/car/details', headers=headers, json={'plateNumber':context.args[0]})
+            response = requests.post('https://api.laqo.hr/webshop/ace/api/v1/car/details', headers=headers, json={'plateNumber':(context.args[0]).upper()})
 
             data = []
             reply = ''
@@ -289,8 +289,5 @@ def main() -> None:
 if __name__ == '__main__':
     main()
 
-#TODO
-#add results limit to avoid telegram message rate limiting for /find command
-#add tehnical examination details for /croreg 
-#ADD ZOOMEYE SUPPORT for scans
+
 

@@ -49,6 +49,8 @@ TELEGRAM BOT:
 
 ```bash
 - Zoomeye scans
+- Add results limit to avoid telegram message rate limiting for /find command
+- Add tehnical examination details for /croreg
 ```
 
 ## Contributing
