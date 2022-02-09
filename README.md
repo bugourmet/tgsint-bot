@@ -15,7 +15,7 @@ Set up [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
 
 ## Configuration
 
-#### Open `config.py` and add required keys/tokens...
+#### Open `.env` file and add required keys/tokens...
 
 Create a Telegram bot using @botfather and get your bot token.
 

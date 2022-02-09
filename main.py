@@ -13,10 +13,9 @@ from dotenv import load_dotenv
 
 #logging.basicConfig(filename='log.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
 logger = logging.getLogger(__name__)
-
 load_dotenv() 
+
 
 def find(update: Update, context: CallbackContext) -> None:
     try:
@@ -46,7 +45,7 @@ def find(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Missing argument!")
 
 
-def phone(update: Update, context: CallbackContext) -> None: #fix error that is thrown if no argument is passed (/phone without args)
+def phone(update: Update, context: CallbackContext) -> None:
     try:
         if len(context.args[0]) < 8:
             update.message.reply_text("Please enter a longer query.")
@@ -77,6 +76,7 @@ def phone(update: Update, context: CallbackContext) -> None: #fix error that is 
         print(e)
     except IndexError:
         update.message.reply_text("Missing argument!")
+
 
 def subdomains(update: Update, context: CallbackContext) -> None:
     try:
@@ -118,6 +118,7 @@ def who(update: Update, context: CallbackContext) -> None:
     except IndexError:
         update.message.reply_text("Missing argument!")
 
+
 def shodansearch(update: Update, context: CallbackContext) -> None:
     try:
         reply = ''
@@ -147,6 +148,7 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(str(e))
     except IndexError:
         update.message.reply_text("Missing argument!")
+
 
 def bihreg(update: Update, context: CallbackContext) -> None:
     try:
@@ -201,6 +203,7 @@ def bihreg(update: Update, context: CallbackContext) -> None:
         print(e)
     except IndexError:
         update.message.reply_text("Missing argument!")
+
 
 def croreg(update: Update, context: CallbackContext) -> None:
     try:
@@ -272,7 +275,6 @@ def help(update, context):
 def main() -> None:
     # Create the updater and pass it your bot's token.
     bot = Updater(os.environ.get("BOT_TOKEN"))
-    
     users = list(map(int, os.environ.get("USERS").split('|')))
 
     # Get the dispatcher to register handlers.
@@ -285,6 +287,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=users))) 
     dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=users)))
+
 
     # Start the bot.
     bot.start_polling()
