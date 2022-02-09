@@ -7,7 +7,8 @@ from telegram.ext.filters import DataDict
 import whois
 import shodan
 from bs4 import BeautifulSoup
-import config as cfg
+import os
+from dotenv import load_dotenv
 
 
 #logging.basicConfig(filename='log.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -15,9 +16,11 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+load_dotenv() 
+
 def find(update: Update, context: CallbackContext) -> None:
     try:
-        response = requests.get(cfg.API_URL + context.args[0] + "/" + context.args[1])
+        response = requests.get(os.environ.get("API_URL") + context.args[0] + "/" + context.args[1])
         data = []
         reply = ''
         jobjects = json.loads(response.text)
@@ -50,7 +53,7 @@ def phone(update: Update, context: CallbackContext) -> None: #fix error that is 
         else:
             if "+" in context.args[0]:
                 context.args[0]=(context.args[0]).replace("+","")
-            response = requests.get("http://localhost:3000/api/phone/" + context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "api/phone/" + context.args[0])
             data = []
             reply = ''
             jobjects = json.loads(response.text)
@@ -84,7 +87,7 @@ def subdomains(update: Update, context: CallbackContext) -> None:
 
         headers = {
             "Accept": "application/json",
-            "APIKEY": cfg.SCTRAILS_API_KEY
+            "APIKEY": os.environ.get("SCTRAILS_API_KEY")
             }
         
         reply = ''
@@ -120,11 +123,11 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
         reply = ''
         vulns = []
         ports = []
-        url = 'https://api.shodan.io/dns/resolve?hostnames=' + context.args[0] + '&key=' + cfg.SHODAN_API_KEY
+        url = 'https://api.shodan.io/dns/resolve?hostnames=' + context.args[0] + '&key=' + os.environ.get("SHODAN_API_KEY")
 
         response = requests.get(url)
         IP = response.json()[context.args[0]]
-        api = shodan.Shodan(cfg.SHODAN_API_KEY)
+        api = shodan.Shodan(os.environ.get("SHODAN_API_KEY"))
         host = api.host(IP)
         if host.get('vulns') != None:
             for item in host.get('data'):
@@ -268,18 +271,20 @@ def help(update, context):
 
 def main() -> None:
     # Create the updater and pass it your bot's token.
-    bot = Updater(cfg.BOT_TOKEN)
+    bot = Updater(os.environ.get("BOT_TOKEN"))
     
+    users = list(map(int, os.environ.get("USERS").split('|')))
+
     # Get the dispatcher to register handlers.
     dispatcher = bot.dispatcher
-    dispatcher.add_handler(CommandHandler("phone", phone, Filters.user(user_id=cfg.users)))
-    dispatcher.add_handler(CommandHandler("domains", subdomains, Filters.user(user_id=cfg.users)))
-    dispatcher.add_handler(CommandHandler("whois", who, Filters.user(user_id=cfg.users)))
-    dispatcher.add_handler(CommandHandler("shodan", shodansearch, Filters.user(user_id=cfg.users)))
-    dispatcher.add_handler(CommandHandler("bihreg", bihreg, Filters.user(user_id=cfg.users)))
-    dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=cfg.users)))
-    dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=cfg.users))) 
-    dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=cfg.users)))
+    dispatcher.add_handler(CommandHandler("phone", phone, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("domains", subdomains, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("whois", who, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("shodan", shodansearch, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("bihreg", bihreg, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=users))) 
+    dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=users)))
 
     # Start the bot.
     bot.start_polling()
