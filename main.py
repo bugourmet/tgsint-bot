@@ -9,7 +9,7 @@ import shodan
 from bs4 import BeautifulSoup
 import os
 from dotenv import load_dotenv
-
+import re
 
 #logging.basicConfig(filename='log.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -35,8 +35,7 @@ def find(update: Update, context: CallbackContext) -> None:
                 data.append('Extra Info: ' + str(jobj["extra"]))
                 reply = '\n'.join(data) 
         update.message.reply_text(reply)
-    except requests.exceptions.ConnectionError as e:
-        print(e)
+
     except requests.exceptions.RequestException as e:
         print(e)
     except KeyError as e:
@@ -68,48 +67,13 @@ def phone(update: Update, context: CallbackContext) -> None:
                     data.append('Extra Info: ' + str(jobj["extra"]))
                     reply = '\n'.join(data)
                     update.message.reply_text(reply)
-    except requests.exceptions.ConnectionError as e:
-        print(e)
+                    
     except requests.exceptions.RequestException as e:
         print(e)
     except KeyError as e:
         print(e)
     except IndexError:
         update.message.reply_text("Missing argument!")
-
-
-def subdomains(update: Update, context: CallbackContext) -> None:
-    try:
-        if len(context.args[0]) < 3:
-            update.message.reply_text("Please enter a query longer than 3 chars.")
-        else:
-            url = "https://api.securitytrails.com/v1/domain/" + context.args[0] + "/subdomains?children_only=false&include_inactive=false"
-
-        headers = {
-            "Accept": "application/json",
-            "APIKEY": os.environ.get("SCTRAILS_API_KEY")
-            }
-        
-        reply = ''
-        domains = []
-        response = requests.request("GET", url, headers=headers)
-        json_data = json.loads(response.text)
-        
-        if "count" in json_data:
-            update.message.reply_text("No subdomains found for given domain!")
-        elif (json_data["meta"]) == {"limit_reached": "True"}:
-            update.message.reply_text("API requests limit reached!")
-        else:
-            for domain in json_data['subdomains']:
-                domains.append(domain + '.' + context.args[0])
-                reply = '\n'.join(domains)
-            update.message.reply_text(('FOUND '+ str(json_data['subdomain_count']) + ' DOMAINS :') + '\n'+ reply)
-    except requests.exceptions.ConnectionError as e:
-        print(e)
-    except requests.exceptions.RequestException as e:
-        print(e)
-    except KeyError as e:
-        print(e)
 
 
 def who(update: Update, context: CallbackContext) -> None:
@@ -119,17 +83,17 @@ def who(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Missing argument!")
 
 
-def shodansearch(update: Update, context: CallbackContext) -> None:
+def cvescan(update: Update, context: CallbackContext) -> None:
     try:
         reply = ''
         vulns = []
         ports = []
         url = 'https://api.shodan.io/dns/resolve?hostnames=' + context.args[0] + '&key=' + os.environ.get("SHODAN_API_KEY")
-
         response = requests.get(url)
         IP = response.json()[context.args[0]]
         api = shodan.Shodan(os.environ.get("SHODAN_API_KEY"))
         host = api.host(IP)
+
         if host.get('vulns') != None:
             for item in host.get('data'):
                 ports.append(item['port'])
@@ -144,8 +108,10 @@ def shodansearch(update: Update, context: CallbackContext) -> None:
             reply = ('NO CVE DATA!')
         update.message.reply_text('TARGET IP: ' + str(IP) + '\n\n' + 'CVE: ' + '\n\n' + reply + '\n\n' + 'PORTS: ' + str(ports))
 
-    except(shodan.APIError,TypeError,KeyError) as e:
-        update.message.reply_text(str(e))
+    except requests.exceptions.ConnectionError as e:
+        update.message.reply_text("Couldn't resolve! Connection error!")
+    except(shodan.APIError,TypeError,KeyError):
+        update.message.reply_text("Couldn't resolve  the host!")
     except IndexError:
         update.message.reply_text("Missing argument!")
 
@@ -197,8 +163,6 @@ def bihreg(update: Update, context: CallbackContext) -> None:
             else:
                 update.message.reply_text(result.text)
 
-    except requests.exceptions.ConnectionError as e:
-        print(e)
     except requests.exceptions.RequestException as e:
         print(e)
     except IndexError:
@@ -248,9 +212,17 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 data.append('Snaga(kW): ' + str(jobjects["kw"]))
                 reply = '\n'.join(data)
                 update.message.reply_text(reply)
-            
-    except requests.exceptions.ConnectionError as e:
-        print(e)
+
+                month = str(jobjects["vehiclePolicyDetails"]["policyExpirationDate"]).split("-")
+                data = {    
+                'VIN': str(jobjects["vinNumber"]),
+                'month': month[1]
+                }
+                response = requests.post('https://www.cvh.hr/Umbraco/Surface/TabsSurface/mot',data=data)
+                jobjects = json.loads(response.text)
+                exam_result = re.sub(re.compile('<.*?>') , '', str(jobjects["response"])).replace("Preuzmi u Excel formatu","")
+                update.message.reply_text(exam_result)
+                
     except requests.exceptions.RequestException as e:
         print(e)
     except KeyError as e:
@@ -259,14 +231,71 @@ def croreg(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Missing argument!")
 
 
+def geoip(update: Update, context: CallbackContext) -> None:
+    try:
+        reply = ''
+        data =[]
+        url = 'https://api.shodan.io/dns/resolve?hostnames=' + context.args[0] + '&key=' + os.environ.get("SHODAN_API_KEY")
+        response = requests.get(url)
+        IP = response.json()[context.args[0]]
+        api = shodan.Shodan(os.environ.get("SHODAN_API_KEY"))
+        host = api.host(IP)
+        data.append('Organization : ' + host["org"])
+        data.append('Isp : ' + host["data"][1]["isp"])
+        data.append('Asn : ' + host["data"][1]["asn"])
+        data.append('Country : ' + host["data"][1]["location"]["country_name"])
+        data.append('City : ' + host["data"][1]["location"]["city"])
+        data.append('Longitude : ' + str(host["data"][1]["location"]["longitude"]))
+        data.append('Latitude : ' + str(host["data"][1]["location"]["latitude"]))
+        reply ='\n'.join(data)
+        update.message.reply_text(reply)
+
+    except(shodan.APIError,TypeError,KeyError):
+        update.message.reply_text("Couldn't resolve the host!")
+    except requests.exceptions.ConnectionError as e:
+        update.message.reply_text("Couldn't resolve! Connection error!")
+    except IndexError:
+        update.message.reply_text("Missing argument!")
+
+
+def zoomscan(update: Update, context: CallbackContext) -> None: 
+    try:
+        reply = ''
+        data =[]
+        headers = {
+        'API-KEY': os.environ.get("ZOOMEYE_APIKEY"),
+        }
+
+        params = (
+            ('q', context.args[0]),
+        )
+
+        response = requests.get('https://api.zoomeye.org/domain/search', headers=headers, params=params)
+        jobjects = json.loads(response.text)
+        data.append('COUNT: ' + str(jobjects["total"]))
+        for jobj in jobjects["list"]:
+            data.append('HOST: ' + jobj["name"])
+            data.append('TIMESTAMP: ' + jobj["timestamp"])
+        reply ='\n'.join(data)
+        update.message.reply_text(reply)
+        
+    except IndexError:
+        update.message.reply_text("Missing argument!")
+    except(TypeError,KeyError):
+        update.message.reply_text("Couldn't resolve  the host!")
+    except requests.exceptions.ConnectionError as e:
+        update.message.reply_text("Couldn't resolve! Connection error!")
+
+
 def help(update, context):
     update.message.reply_text("""Usage:  /command <query> \n
       Available commands:
-      /find <Name:Surname> - Search for a person by name&surname (case sensitive).
-      /phone - Search for a a person by phonenumber (country code required e.g. 385)
-      /domains - Check for subdomains
-      /whois - WHOIS lookup
-      /shodan - Scan the target using shodan.
+      /find <Name:Surname> - Search for a person by name&surname.
+      /phone - Search for a a person by phonenumber (/find 385123456789)
+      /whois - WHOIS lookup.
+      /cve - Scan the target for cve details using shodan.
+      /domains - Search for associated domain names using zoomeye. 
+      /geoip - Lookup target geoip info.
       /bihreg <platenum> - Lookup info on bosnian car license plates.
       /croreg <platenum> - Lookup info on croatian car license plates.
     """)
@@ -280,16 +309,17 @@ def main() -> None:
     # Get the dispatcher to register handlers.
     dispatcher = bot.dispatcher
     dispatcher.add_handler(CommandHandler("phone", phone, Filters.user(user_id=users)))
-    dispatcher.add_handler(CommandHandler("domains", subdomains, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("whois", who, Filters.user(user_id=users)))
-    dispatcher.add_handler(CommandHandler("shodan", shodansearch, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("cve", cvescan, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("bihreg", bihreg, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=users))) 
+    dispatcher.add_handler(CommandHandler("geoip", geoip, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("domains", zoomscan, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=users)))
 
-
-    # Start the bot.
+    # Sta
+    # rt the bot.
     bot.start_polling()
     bot.idle()
 
