@@ -221,8 +221,12 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 response = requests.post('https://www.cvh.hr/Umbraco/Surface/TabsSurface/mot',data=data)
                 jobjects = json.loads(response.text)
                 exam_result = re.sub(re.compile('<.*?>') , '', str(jobjects["response"])).replace("Preuzmi u Excel formatu","")
-                update.message.reply_text(exam_result)
-                
+                if len(exam_result) > 4096: #split the exam_result if it's too big(max chars/message on telegram is 4096)
+                    for x in range(0, len(exam_result), 4096):
+                        update.message.reply_text(exam_result[x:x+4096])
+                else:
+                 update.message.reply_text(exam_result)
+
     except requests.exceptions.RequestException as e:
         print(e)
     except KeyError as e:
