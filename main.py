@@ -51,7 +51,7 @@ def phone(update: Update, context: CallbackContext) -> None:
         else:
             if "+" in context.args[0]:
                 context.args[0]=(context.args[0]).replace("+","")
-            response = requests.get(os.environ.get("API_URL") + "api/phone/" + context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "/phone/" + context.args[0])
             data = []
             reply = ''
             jobjects = json.loads(response.text)
