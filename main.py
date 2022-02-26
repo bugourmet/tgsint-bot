@@ -4,7 +4,7 @@ import logging
 import requests
 import json
 from telegram.ext.filters import DataDict
-import whois
+from whois import whois
 import shodan
 from bs4 import BeautifulSoup
 import os
@@ -78,7 +78,8 @@ def phone(update: Update, context: CallbackContext) -> None:
 
 def who(update: Update, context: CallbackContext) -> None:
     try:
-        update.message.reply_text(whois.whois(context.args[0]))
+        response = json.dumps(whois(context.args[0]),sort_keys=True, default=str,indent=4) #todo response formatting
+        update.message.reply_text(response)
     except IndexError:
         update.message.reply_text("Missing argument!")
 
@@ -322,8 +323,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("domains", zoomscan, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=users)))
 
-    # Sta
-    # rt the bot.
+    # Start the bot.
     bot.start_polling()
     bot.idle()
 
