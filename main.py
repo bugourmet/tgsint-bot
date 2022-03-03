@@ -1,9 +1,10 @@
 from telegram import Update,message, update
+import telegram
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
+from telegram.ext.filters import DataDict
 import logging
 import requests
 import json
-from telegram.ext.filters import DataDict
 from whois import whois
 import shodan
 from bs4 import BeautifulSoup
@@ -16,6 +17,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 load_dotenv() 
 
+
+def split(message):
+    if len(message) > 4096: #split the message if it's too big(max chars/message on telegram is 4096)
+        for x in range(0, len(message), 4096):
+            return(message[x:x+4096])
+    else:
+        return(message)
 
 def find(update: Update, context: CallbackContext) -> None:
     try:
@@ -34,7 +42,7 @@ def find(update: Update, context: CallbackContext) -> None:
                 data.append('Sex: ' + jobj["sex"])
                 data.append('Extra Info: ' + str(jobj["extra"]))
                 reply = '\n'.join(data) 
-        update.message.reply_text(reply)
+        update.message.reply_text(split(reply))
 
     except requests.exceptions.RequestException as e:
         print(e)
@@ -42,7 +50,8 @@ def find(update: Update, context: CallbackContext) -> None:
         print(e)
     except IndexError:
         update.message.reply_text("Missing argument!")
-
+    except telegram.error.BadRequest as e:
+        print(e)
 
 def phone(update: Update, context: CallbackContext) -> None:
     try:
@@ -66,7 +75,7 @@ def phone(update: Update, context: CallbackContext) -> None:
                     data.append('Sex: ' + jobj["sex"])
                     data.append('Extra Info: ' + str(jobj["extra"]))
                     reply = '\n'.join(data)
-                    update.message.reply_text(reply)
+                    update.message.reply_text(split(reply))
                     
     except requests.exceptions.RequestException as e:
         print(e)
@@ -79,9 +88,12 @@ def phone(update: Update, context: CallbackContext) -> None:
 def who(update: Update, context: CallbackContext) -> None:
     try:
         response = json.dumps(whois(context.args[0]),sort_keys=True, default=str,indent=4) #todo response formatting
+        #response = whois.whois(context.args[0]) #todo response formatting
         update.message.reply_text(response)
     except IndexError:
         update.message.reply_text("Missing argument!")
+    except whois.parser.PywhoisError:
+        update.message.reply_text("No entries found!")
 
 
 def cvescan(update: Update, context: CallbackContext) -> None:
@@ -123,7 +135,7 @@ def bihreg(update: Update, context: CallbackContext) -> None:
             update.message.reply_text("Please enter a query longer than 3 chars.")
         else:
             headers = {
-                'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:88.0) Gecko/20100101 Firefox/88.0',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Accept-Encoding': 'gzip, deflate, br',
@@ -162,7 +174,7 @@ def bihreg(update: Update, context: CallbackContext) -> None:
             if "vozilo se ne može pronaći" in result.text:
                 update.message.reply_text("Vehicle Details Not Found!")
             else:
-                update.message.reply_text(result.text)
+                update.message.reply_text(split(result.text))
 
     except requests.exceptions.RequestException as e:
         print(e)
@@ -172,7 +184,7 @@ def bihreg(update: Update, context: CallbackContext) -> None:
 
 def croreg(update: Update, context: CallbackContext) -> None:
     try:
-        if len(context.args[0]) < 3:
+        if len(context.args[0]) < 5:
             update.message.reply_text("Please enter a query longer than 3 chars.")
         else:
             headers = {
@@ -204,7 +216,7 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 data.append('Istek Police: ' + str(jobjects["vehiclePolicyDetails"]["policyExpirationDate"]))
                 data.append('Broj Police: ' + str(jobjects["vehiclePolicyDetails"]["policyNumber"]))
                 data.append('VIN: ' + str(jobjects["vinNumber"]))
-                data.append('Tip Automobila: ' + str(jobjects["vehicleType"]))
+                data.append('Tip Automobila: ' + str(jobjects["vehicleType"]))  
                 data.append('Marka: ' + str(jobjects["vehicleManufacturerName"]))
                 data.append('Model: ' + str(jobjects["model"]))
                 data.append('Tip Goriva: ' + str(jobjects["fuelType"]))
@@ -222,11 +234,7 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 response = requests.post('https://www.cvh.hr/Umbraco/Surface/TabsSurface/mot',data=data)
                 jobjects = json.loads(response.text)
                 exam_result = re.sub(re.compile('<.*?>') , '', str(jobjects["response"])).replace("Preuzmi u Excel formatu","")
-                if len(exam_result) > 4096: #split the exam_result if it's too big(max chars/message on telegram is 4096)
-                    for x in range(0, len(exam_result), 4096):
-                        update.message.reply_text(exam_result[x:x+4096])
-                else:
-                 update.message.reply_text(exam_result)
+                update.message.reply_text(split(exam_result))
 
     except requests.exceptions.RequestException as e:
         print(e)
@@ -293,16 +301,16 @@ def zoomscan(update: Update, context: CallbackContext) -> None:
 
 
 def help(update, context):
-    update.message.reply_text("""Usage:  /command <query> \n
-      Available commands:
-      /find <Name:Surname> - Search for a person by name&surname.
-      /phone - Search for a a person by phonenumber (/find 385123456789)
+    update.message.reply_text("""Usage:  /command <query> 
+      Available commands:\n
+      /find <Name:Surname> - Person lookup.
+      /phone - Search for a a person by phonenumber.
       /whois - WHOIS lookup.
       /cve - Scan the target for cve details using shodan.
-      /domains - Search for associated domain names using zoomeye. 
+      /domains - Search for associated domain names. 
       /geoip - Lookup target geoip info.
-      /bihreg <platenum> - Lookup info on bosnian car license plates.
-      /croreg <platenum> - Lookup info on croatian car license plates.
+      /bihreg <platenum> - Lookup bosnian car license plates.
+      /croreg <platenum> - Lookup croatian car license plates.
     """)
 
 
@@ -310,6 +318,7 @@ def main() -> None:
     # Create the updater and pass it your bot's token.
     bot = Updater(os.environ.get("BOT_TOKEN"))
     users = list(map(int, os.environ.get("USERS").split('|')))
+
 
     # Get the dispatcher to register handlers.
     dispatcher = bot.dispatcher
@@ -330,6 +339,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-
-
