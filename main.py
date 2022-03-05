@@ -1,4 +1,3 @@
-from sqlite3 import complete_statement
 from telegram import Update,message, update
 import telegram
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
@@ -54,7 +53,6 @@ def find(update: Update, context: CallbackContext) -> None:
     except telegram.error.BadRequest as e:
         print(e)
 
-
 def phone(update: Update, context: CallbackContext) -> None:
     try:
         if len(context.args[0]) < 8:
@@ -78,14 +76,13 @@ def phone(update: Update, context: CallbackContext) -> None:
                     data.append('Extra Info: ' + str(jobj["extra"]))
                     reply = '\n'.join(data)
                     update.message.reply_text(split(reply))
-                    
+
     except requests.exceptions.RequestException as e:
         print(e)
     except KeyError as e:
         print(e)
     except IndexError:
         update.message.reply_text("Missing argument!")
-
 
 def who(update: Update, context: CallbackContext) -> None:
     try:
