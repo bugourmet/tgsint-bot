@@ -1,3 +1,4 @@
+from sqlite3 import complete_statement
 from telegram import Update,message, update
 import telegram
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
@@ -27,7 +28,7 @@ def split(message):
 
 def find(update: Update, context: CallbackContext) -> None:
     try:
-        response = requests.get(os.environ.get("API_URL") + context.args[0] + "/" + context.args[1])
+        response = requests.get(os.environ.get("API_URL") + "find?name=" + context.args[0] + "&surname="+context.args[1])
         data = []
         reply = ''
         jobjects = json.loads(response.text)
@@ -53,6 +54,7 @@ def find(update: Update, context: CallbackContext) -> None:
     except telegram.error.BadRequest as e:
         print(e)
 
+
 def phone(update: Update, context: CallbackContext) -> None:
     try:
         if len(context.args[0]) < 8:
@@ -60,7 +62,7 @@ def phone(update: Update, context: CallbackContext) -> None:
         else:
             if "+" in context.args[0]:
                 context.args[0]=(context.args[0]).replace("+","")
-            response = requests.get(os.environ.get("API_URL") + "/phone/" + context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "phone?number=" + context.args[0])
             data = []
             reply = ''
             jobjects = json.loads(response.text)
