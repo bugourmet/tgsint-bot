@@ -1,10 +1,10 @@
-from telegram import Update,message, update
+from telegram import Update
 import telegram
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
-from telegram.ext.filters import DataDict
 import logging
 import requests
 import json
+from whois.parser import PywhoisError
 from whois import whois
 import shodan
 from bs4 import BeautifulSoup
@@ -17,6 +17,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 load_dotenv() 
 
+def error(update, context): 
+    logger.warning("%s" ' caused error: "%s"', update, context.error)
 
 def split(message):
     if len(message) > 4096: #split the message if it's too big(max chars/message on telegram is 4096)
@@ -24,6 +26,7 @@ def split(message):
             return(message[x:x+4096])
     else:
         return(message)
+
 
 def find(update: Update, context: CallbackContext) -> None:
     try:
@@ -52,6 +55,7 @@ def find(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Missing argument!")
     except telegram.error.BadRequest as e:
         print(e)
+
 
 def phone(update: Update, context: CallbackContext) -> None:
     try:
@@ -84,6 +88,7 @@ def phone(update: Update, context: CallbackContext) -> None:
     except IndexError:
         update.message.reply_text("Missing argument!")
 
+
 def who(update: Update, context: CallbackContext) -> None:
     try:
         response = json.dumps(whois(context.args[0]),sort_keys=True, default=str,indent=4) #todo response formatting
@@ -91,7 +96,7 @@ def who(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(response)
     except IndexError:
         update.message.reply_text("Missing argument!")
-    except whois.parser.PywhoisError:
+    except PywhoisError:
         update.message.reply_text("No entries found!")
 
 
@@ -120,7 +125,7 @@ def cvescan(update: Update, context: CallbackContext) -> None:
             reply = ('NO CVE DATA!')
         update.message.reply_text('TARGET IP: ' + str(IP) + '\n\n' + 'CVE: ' + '\n\n' + reply + '\n\n' + 'PORTS: ' + str(ports))
 
-    except requests.exceptions.ConnectionError as e:
+    except requests.exceptions.ConnectionError:
         update.message.reply_text("Couldn't resolve! Connection error!")
     except(shodan.APIError,TypeError,KeyError):
         update.message.reply_text("Couldn't resolve  the host!")
@@ -264,7 +269,7 @@ def geoip(update: Update, context: CallbackContext) -> None:
 
     except(shodan.APIError,TypeError,KeyError):
         update.message.reply_text("Couldn't resolve the host!")
-    except requests.exceptions.ConnectionError as e:
+    except requests.exceptions.ConnectionError:
         update.message.reply_text("Couldn't resolve! Connection error!")
     except IndexError:
         update.message.reply_text("Missing argument!")
@@ -295,7 +300,7 @@ def zoomscan(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Missing argument!")
     except(TypeError,KeyError):
         update.message.reply_text("Couldn't resolve  the host!")
-    except requests.exceptions.ConnectionError as e:
+    except requests.exceptions.ConnectionError:
         update.message.reply_text("Couldn't resolve! Connection error!")
 
 
@@ -314,13 +319,14 @@ def help(update, context):
 
 
 def main() -> None:
+
     # Create the updater and pass it your bot's token.
     bot = Updater(os.environ.get("BOT_TOKEN"))
     users = list(map(int, os.environ.get("USERS").split('|')))
 
-
     # Get the dispatcher to register handlers.
     dispatcher = bot.dispatcher
+    dispatcher.add_error_handler(error)
     dispatcher.add_handler(CommandHandler("phone", phone, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("whois", who, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("cve", cvescan, Filters.user(user_id=users)))
