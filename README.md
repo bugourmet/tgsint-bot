@@ -45,7 +45,7 @@ TELEGRAM BOT:
 6. Lookup information on bosnian car licence plates.
 7. Lookup information on croatian car licence plates(tehnical examination and insurance details).
 8. Shodan host geoip lookup.
-9. Nmap quick scan (-sP)
+9. Nmap quick scan (-sP) / custom scan
 
 ## Changelog
 
@@ -56,5 +56,9 @@ Check the changelog file
 Pull requests are welcome.
 If you have a suggestion open an issue with the tag "enhancement".  
 
+##Legal disclaimer:
+Developers assume no liability and are not responsible for any misuse or damage caused by this program.
+This program is for educational purposes.
+
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://choosealicense.com/licenses/mit/
