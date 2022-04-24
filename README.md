@@ -39,25 +39,22 @@ TELEGRAM BOT:
 
 1. Phone number lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
 2. Name & Surname lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
-3. Associated domain names search via Zoomeye.
-4. WHOIS Lookup.
+3. WHOIS lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
+4. Associated domain names search via Zoomeye.
 5. Shodan host search (gathers host IP address,CVE data and open ports).
 6. Lookup information on bosnian car licence plates.
 7. Lookup information on croatian car licence plates(tehnical examination and insurance details).
 8. Shodan host geoip lookup.
+9. Nmap quick scan (-sP)
 
-#### TODO:
+## Changelog
 
-```bash
-- Add results limit to avoid telegram message rate limiting for /find command
-```
+Check the changelog file
 
 ## Contributing
 
 Pull requests are welcome.
-If you have a suggestion , please fork the repo and create a pull request. 
-
-You can also simply open an issue with the tag "enhancement". 
+If you have a suggestion open an issue with the tag "enhancement".  
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

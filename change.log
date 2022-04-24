@@ -1,0 +1,8 @@
+4/22/2022
+
+- minor phone lookup function update
+- updated bihreg param
+- replaced whois package with whois backend API on tgsint-api
+- new command , nmap quick scan (-sP) , api hosted on tgsint-api
+- [!] experimental, nmap scan with custom command parameters (e.g /nmap 
+- code cleanup and improvements

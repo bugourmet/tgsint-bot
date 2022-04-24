@@ -1,6 +1,5 @@
 python-dotenv==0.19.2
 python_telegram_bot==13.9
-python_whois==0.7.3
 requests==2.25.0
 shodan==1.26.0
 telegram==0.0.1
