@@ -56,7 +56,7 @@ Check the changelog file
 Pull requests are welcome.
 If you have a suggestion open an issue with the tag "enhancement".  
 
-##Legal disclaimer:
+## Legal disclaimer:
 Developers assume no liability and are not responsible for any misuse or damage caused by this program.
 This program is for educational purposes.
 
