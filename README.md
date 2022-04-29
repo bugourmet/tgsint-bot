@@ -21,8 +21,6 @@ Create a Telegram bot using @botfather and get your bot token.
 
 Visit [Shodan](https://developer.shodan.io/) to obtain your API Key.
 
-Visit [Zoomeye](https://zoomeye.org/) to obtain your API Key.
-
 Change `"1234567890|123456789"` to your own telegram account id/s or simply remove user filter at the dispatcher if you want your bot to be accessible by everyone.  
 This part filters messages to allow only those which are from specified user ID(s).
 
@@ -37,16 +35,17 @@ TELEGRAM BOT:
 
 ## Features
 
-1. Phone number lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
-2. Name & Surname lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
-3. WHOIS lookup trough [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
-4. Associated domain names search via Zoomeye.
+1. Phone number lookup.
+2. Name & Surname lookup.
+3. WHOIS lookup.
+4. Subdomains lookup (nmap --script hostmap-crtsh).
 5. Shodan host search (gathers host IP address,CVE data and open ports).
 6. Lookup information on bosnian car licence plates.
 7. Lookup information on croatian car licence plates(tehnical examination and insurance details).
 8. Shodan host geoip lookup.
-9. Nmap quick scan (-sP) / custom scan
+9. Nmap scan 
 
+[tgsint-api](https://github.com/runtimeterrorist/tgsint-api) serves most of the data for the bot.
 ## Changelog
 
 Check the changelog file
@@ -61,4 +60,4 @@ Developers assume no liability and are not responsible for any misuse or damage 
 This program is for educational purposes.
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/
+[MIT](https://choosealicense.com/licenses/mit/)

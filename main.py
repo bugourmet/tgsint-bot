@@ -344,7 +344,7 @@ def help(update, context):
       /geoip - Lookup target geoip info.
       /bihreg - Lookup bosnian car license plates.
       /croreg - Lookup croatian car license plates.
-      /nmap - Nmap scan w/custom nmap commands.
+      /nmap - Nmap scans.
     """)
 
 
