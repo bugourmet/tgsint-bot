@@ -6,3 +6,10 @@
 - new command , nmap quick scan (-sP) , api hosted on tgsint-api
 - [!] experimental, nmap scan with custom command parameters (e.g /nmap 
 - code cleanup and improvements
+
+04/29/2022
+
+- minor changes
+- removed nmap quick scan
+- replaced zoomeye subdomain scan with nmap hostmap-crtsh script (tgsint-api)
+- updated packages

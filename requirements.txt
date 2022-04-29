@@ -1,6 +1,5 @@
-python-dotenv==0.19.2
-python_telegram_bot==13.9
+beautifulsoup4==4.11.1
+python-dotenv==0.20.0
 requests==2.25.0
 shodan==1.26.0
 telegram==0.0.1
-beautifulsoup4==4.10.0
