@@ -13,3 +13,8 @@
 - removed nmap quick scan
 - replaced zoomeye subdomain scan with nmap hostmap-crtsh script (tgsint-api)
 - updated packages
+
+05/13/2022
+- adjustments to new API format
+- minor fixes & formatting
+- temporary disabled subdomain scan until dedicated api is completed

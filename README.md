@@ -38,7 +38,7 @@ TELEGRAM BOT:
 1. Phone number lookup.
 2. Name & Surname lookup.
 3. WHOIS lookup.
-4. Subdomains lookup (nmap --script hostmap-crtsh).
+4. Subdomains lookup (nmap --script hostmap-crtsh). [!] temporary disabled 
 5. Shodan host search (gathers host IP address,CVE data and open ports).
 6. Lookup information on bosnian car licence plates.
 7. Lookup information on croatian car licence plates(tehnical examination and insurance details).
