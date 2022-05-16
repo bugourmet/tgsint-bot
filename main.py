@@ -285,8 +285,8 @@ def nmap_scan(update: Update, context: CallbackContext) -> None:
     except requests.exceptions.ConnectionError:
         update.message.reply_text("Couldn't resolve! Connection error!")
 
-def setcommand(agrument):
-    match agrument:
+def setcommand(argument):
+    match argument:
         case "t":
             return "traceroute"
         case "is":
