@@ -1,4 +1,3 @@
-from email.policy import default
 import telegram
 from telegram import Update
 from telegram.ext import Updater, CommandHandler,Filters, CallbackContext
@@ -6,8 +5,7 @@ import logging
 import requests
 import json
 import shodan
-from bs4 import BeautifulSoup
-import os,re,datetime
+import os,re
 from dotenv import load_dotenv
 
 #logging.basicConfig(filename='log.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -43,7 +41,7 @@ def find(update: Update, context: CallbackContext) -> None:
         else:
             data = []
             reply = ''
-            response = requests.get(os.environ.get("API_URL") + "person/find?name=%s"%context.args[0] + "&surname=%s"%context.args[1])
+            response = requests.get(os.environ.get("API_URL") + "person/find?name=%s"%context.args[0] + "&surname=%s" %context.args[1])
             jobjects = json.loads(response.text)
             if jobjects.get("status") == "FAILED":
                 reply = "User not found!"
@@ -74,7 +72,7 @@ def phone(update: Update, context: CallbackContext) -> None:
         else:
             if "+" in context.args[0]:
                 context.args[0]=(context.args[0]).replace("+","")
-            response = requests.get(os.environ.get("API_URL") + "person/phone?number=%s"%context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "person/phone?number=%s" %context.args[0])
             data = []
             reply = ''
             jobjects = json.loads(response.text)
@@ -106,7 +104,7 @@ def whois(update: Update, context: CallbackContext) -> None:
         else:
             data = []
             reply = ''
-            response = requests.get(os.environ.get("API_URL") + "whois?domain=%s"%context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "whois?domain=%s" %context.args[0])
             jobjects = json.loads(response.text)
             for server in jobjects:
                 for info in(jobjects[server]):
@@ -130,7 +128,7 @@ def cvescan(update: Update, context: CallbackContext) -> None:
             reply = ''
             vulns = []
             ports = []
-            url = 'https://api.shodan.io/dns/resolve?hostnames=%s'%context.args[0] + '&key=%s'%os.environ.get("SHODAN_API_KEY")
+            url = 'https://api.shodan.io/dns/resolve?hostnames=%s' %context.args[0] + '&key=%s'%os.environ.get("SHODAN_API_KEY")
             response = requests.get(url)
             IP = response.json()[context.args[0]]
             api = shodan.Shodan(os.environ.get("SHODAN_API_KEY"))
@@ -166,7 +164,7 @@ def bihreg(update: Update, context: CallbackContext) -> None:
             if len(context.args[0]) < 5:
                 update.message.reply_text("Please enter a query longer than 5 chars.")
             else:
-                response = requests.get(os.environ.get("API_URL") + "carlookup/bih?plates=%s"%context.args[0])
+                response = requests.get(os.environ.get("API_URL") + "carlookup/bih?plates=%s" %context.args[0])
                 jobjects = json.loads(response.text)
                 sendmessage(jobjects.get("data"),update)
 
@@ -184,7 +182,7 @@ def croreg(update: Update, context: CallbackContext) -> None:
             if len(context.args[0]) < 5:
                 update.message.reply_text("Please enter a query longer than 5 chars.")
             else:
-                response = requests.get(os.environ.get("API_URL") + "carlookup/hr?plates=%s"%context.args[0])
+                response = requests.get(os.environ.get("API_URL") + "carlookup/hr?plates=%s" %context.args[0])
                 data = []
                 reply = ''
                 jobjects = json.loads(response.text)
@@ -225,7 +223,7 @@ def geoip(update: Update, context: CallbackContext) -> None:
         else:
             reply = ''
             data = []
-            url = 'https://api.shodan.io/dns/resolve?hostnames=%s'%context.args[0] + '&key=%s'%os.environ.get("SHODAN_API_KEY")
+            url = 'https://api.shodan.io/dns/resolve?hostnames=%s' %context.args[0] + '&key=%s'%os.environ.get("SHODAN_API_KEY")
             response = requests.get(url)
             IP = response.json()[context.args[0]]
             api = shodan.Shodan(os.environ.get("SHODAN_API_KEY"))
@@ -253,16 +251,16 @@ def domains(update: Update, context: CallbackContext) -> None:  ## CHECK
         if len(context.args) == 0:
             update.message.reply_text("Usage:  /domains example.com")
         else:
-            response = requests.get(os.environ.get("API_URL") + "")
+            response = requests.get(os.environ.get("API_URL") + "nmap/subdomains?domain=%s" %context.args[0])
             jobjects = json.loads(response.text)
-            if jobjects.get("result") == "":
-                sendmessage("Couldn't resolve! Check the domain!",update)
-            else: 
-                sendmessage(jobjects.get("result"),update)
+            if jobjects.get("status") == "FAILED":
+                update.message.reply_text("There was an error !")
+            else:
+                sendmessage(jobjects.get("data"),update)
     except IndexError:
         update.message.reply_text("Missing argument!")
-    except(TypeError,KeyError):
-        update.message.reply_text("Couldn't resolve the host!")
+    except(TypeError,KeyError) as e:
+        print(e)
     except requests.exceptions.ConnectionError:
         update.message.reply_text("Couldn't resolve! Connection error!")
 
@@ -334,7 +332,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("croreg", croreg, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("find", find, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("geoip", geoip, Filters.user(user_id=users)))
-    #dispatcher.add_handler(CommandHandler("domains", domains, Filters.user(user_id=users)))
+    dispatcher.add_handler(CommandHandler("domains", domains, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("nmap", nmap_scan, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler("help", help, Filters.user(user_id=users)))
 
