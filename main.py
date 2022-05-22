@@ -277,7 +277,7 @@ def nmap_scan(update: Update, context: CallbackContext) -> None:
       ping - ping scan.
       qsp - quickscan plus.""")
         else:
-            response = requests.get(os.environ.get("API_URL") + "nmap/" + "%s" %setcommand(context.args[1]) + "?target=%s" %context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "/nmap/" + "%s" %setcommand(context.args[1]) + "?target=%s" %context.args[0])
             jobjects = json.loads(response.text)
             sendmessage(jobjects.get("data"),update)
     except IndexError:
