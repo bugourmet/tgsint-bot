@@ -305,11 +305,11 @@ def setcommand(argument):
 def help(update, context):
     update.message.reply_text("""Usage:  /command <query> 
       Available commands:\n
-      /find - Person lookup.
-      /phone - Phone number lookup.
+      /find - Person lookup by name.
+      /phone - Person lookup by phone number.
       /whois - WHOIS lookup.
-      /cve - Scan the target for cve details using shodan.
-      /domains - temporary disabled. 
+      /cve - CVE scan using shodan.
+      /domains - Subdomains scan. 
       /geoip - Lookup target geoip info.
       /bihreg - Lookup bosnian car license plates.
       /croreg - Lookup croatian car license plates.

@@ -18,3 +18,13 @@
 - adjustments to new API format
 - minor fixes & formatting
 - temporary disabled subdomain scan until dedicated api is completed
+
+05/16/2022
+- minor adjustments
+- enabled subdomain scan
+
+05/21/2022
+- added missing package in requirements.txt
+
+6/12/2022
+- command description change
