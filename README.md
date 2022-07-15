@@ -50,6 +50,11 @@ TELEGRAM BOT:
 
 Check the changelog file
 
+
+## USEFUL NOTES:
+In some cases people have their middle name set on their profile page.
+Finding them works the same way as for other people , middle name is excluded in the search query. 
+
 ## Contributing
 
 Pull requests are welcome.
