@@ -2,11 +2,9 @@ from telegram.ext import Updater, CommandHandler,Filters
 import logging
 import os
 from dotenv import load_dotenv
-
 import modules.shodan as shodan
 import modules.lookup as lookup
 import modules.nmap as nmap
-import modules.message as message
 
 #logging.basicConfig(filename='log.txt', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
