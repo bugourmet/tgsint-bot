@@ -11,4 +11,4 @@ def splitmessage(message):
 def sendmessage(reply,update):
     messages = splitmessage(reply)
     for message in messages:
-        update.message.reply_text(message)
+        update.message.reply_text(message,parse_mode='Markdown')

@@ -3,46 +3,49 @@ from telegram.ext import CallbackContext
 import requests
 import json
 import os
-from .message import sendmessage
+import modules.message.sendmessage as message
 
 
 def domains(update: Update, context: CallbackContext) -> None:  # TODO test this function
     try:
         if len(context.args) == 0:
-            update.message.reply_text("Usage:  /domains example.com")
+            message.sendmessage("Usage:  /domains example.com",update)
         else:
             response = requests.get(os.environ.get("API_URL") + "nmap/subdomains?domain=%s" %context.args[0])
             jobjects = json.loads(response.text)
             if jobjects.get("status") == "FAILED":
-                update.message.reply_text("There was an error !")
+                message.sendmessage("There was an error !")
             else:
-                sendmessage(jobjects.get("data"),update)
+                message.sendmessage(jobjects.get("data"),update)
     except IndexError:
-        update.message.reply_text("Missing argument!")
+        message.sendmessage("Missing argument!",update)
     except(TypeError,KeyError) as e:
         print(e)
     except requests.exceptions.ConnectionError:
-        update.message.reply_text("Couldn't resolve! Connection error!")
+        message.sendmessage("Couldn't resolve! Connection error!",update)
+    except requests.exceptions.RequestException as e:
+        message.sendmessage("Request timed out. Server is not responding.",update)
 
 def nmap_scan(update: Update, context: CallbackContext) -> None: 
     try:
         if len(context.args) == 0:
-                update.message.reply_text("""Usage:  /nmap target.com t
-      Available scan profiles:\n
+                message.sendmessage("""Usage:  /nmap target.com t
+      *Available scan profiles*:\n
       t - traceroute.
       is - intense scan.
       isudp - intense scan w/udp.
       istcp - intense scan w/tcp.
       ping - ping scan.
-      qsp - quickscan plus.""")
+      qsp - quickscan plus.""",update)
         else:
-            response = requests.get(os.environ.get("API_URL") + "/nmap/" + "%s" %setcommand(context.args[1]) + "?target=%s" %context.args[0])
+            response = requests.get(os.environ.get("API_URL") + "nmap/" + "%s" %setcommand(context.args[1]) + "?target=%s" %context.args[0])
             jobjects = json.loads(response.text)
-            sendmessage(jobjects.get("data"),update)
+            message.sendmessage(jobjects.get("data"),update)
     except IndexError:
-        update.message.reply_text("Missing argument!")
-    except requests.exceptions.ConnectionError:
-        update.message.reply_text("Couldn't resolve! Connection error!")
+        message.sendmessage("Missing argument!",update)
+    except requests.exceptions.RequestException as e:
+        message.sendmessage("Request timed out. Server is not responding.",update)
+
 
 def setcommand(argument):
     match argument:

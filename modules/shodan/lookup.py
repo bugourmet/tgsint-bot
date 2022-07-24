@@ -3,12 +3,12 @@ from telegram.ext import CallbackContext
 import requests
 import os
 import shodan
-from .message import sendmessage
+import modules.message.sendmessage as message
 
 def cvescan(update: Update, context: CallbackContext) -> None:
     try:
         if len(context.args) == 0:
-            update.message.reply_text("Usage:  /cve example.com ")
+            message.sendmessage("Usage:  /cve example.com ",update)
         else:
             reply = ''
             vulns = []
@@ -31,20 +31,22 @@ def cvescan(update: Update, context: CallbackContext) -> None:
                     reply = '\n'.join(vulns)
             else:
                 reply = ("NO CVE DATA!")
-            sendmessage(("TARGET IP: %s" %str(IP) + "\n\nCVE: \n\n%s" %reply + "\n\nPORTS: %s" %str(ports)),update)
+            message.sendmessage(("TARGET IP: %s" %str(IP) + "\n\nCVE: \n\n%s" %reply + "\n\nPORTS: %s" %str(ports)),update)
 
     except requests.exceptions.ConnectionError:
-        update.message.reply_text("Couldn't resolve! Connection error!")
+        message.sendmessage("Couldn't resolve! Connection error!",update)
     except(shodan.APIError) as e:
-        update.message.reply_text(str(e))
+        message.sendmessage(str(e),update)
     except IndexError:
-        update.message.reply_text("Missing argument!")
+        message.sendmessage("Missing argument!",update)
+    except requests.exceptions.RequestException as e:
+        message.sendmessage("Request timed out. Server is not responding.",update)
 
 
 def geoip(update: Update, context: CallbackContext) -> None:
     try:
         if len(context.args) == 0:
-            update.message.reply_text("Usage:  /geoip 8.8.8.8")
+            message.sendmessage("Usage:  /geoip 8.8.8.8",update)
         else:
             reply = ''
             data = []
@@ -61,11 +63,13 @@ def geoip(update: Update, context: CallbackContext) -> None:
             data.append('Longitude : '    + str(host.get("data")[1].get("location").get("longitude")))
             data.append('Latitude : '     + str(host.get("data")[1].get("location").get("latitude")))
             reply ='\n'.join(data)
-            sendmessage(reply,update)
+            message.sendmessage(reply,update)
 
     except(shodan.APIError,TypeError,KeyError):
-        update.message.reply_text("Couldn't resolve the host!")
+        message.sendmessage("Couldn't resolve the host!",update)
     except requests.exceptions.ConnectionError:
-        update.message.reply_text("Couldn't resolve! Connection error!")
+        message.sendmessage("Couldn't resolve! Connection error!",update)
+    except requests.exceptions.RequestException as e:
+        message.sendmessage("Request timed out. Server is not responding.",update)
     except IndexError:
-        update.message.reply_text("Missing argument!")
+        message.sendmessage("Missing argument!",update)
