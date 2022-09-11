@@ -38,6 +38,8 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 jobjects = json.loads(response.text)
                 if jobjects.get("status") == "FAILED":
                     message.sendmessage("Vehicle Details Not Found!",update)
+                if len(jobjects.get("data").get("vehiclePolicyDetails"))== 0:
+                    message.sendmessage("Vehicle Details Not Found!",update)
                 else:
                     data.append('Istek Police: '        + str(jobjects.get("data").get("vehiclePolicyDetails").get("policyExpirationDate")))
                     data.append('Broj Police: '         + str(jobjects.get("data").get("vehiclePolicyDetails").get("policyNumber")))
