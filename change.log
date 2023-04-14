@@ -42,3 +42,7 @@
 
 09/11/2022
 - croreg bugfix / edge case with PP plates
+
+04/14/2023
+- removed shodan/nmap/whois commands
+- code cleanup & improvements
