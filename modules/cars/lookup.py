@@ -1,68 +1,91 @@
+import os
+import json
+import re
 from telegram import Update
 from telegram.ext import CallbackContext
 import requests
-import json
-import os,re
 import modules.message.sendmessage as message
 
 
 def bihreg(update: Update, context: CallbackContext) -> None:
+    """Function used for fetching bosnian plates info"""
     try:
         if len(context.args) == 0:
-            message.sendmessage("Usage:  /bihreg E94-X-XXX ",update)
+            message.sendmessage("Usage:  /bihreg E94-X-XXX ", update)
         else:
             if len(context.args[0]) < 5:
-                message.sendmessage("Please enter a query longer than 5 chars.",update)
+                message.sendmessage(
+                    "Please enter a query longer than 5 chars.", update)
             else:
-                response = requests.get(os.environ.get("API_URL") + "carlookup/bih?plates=%s" %context.args[0])
-                jobjects = json.loads(response.text)
-                message.sendmessage(jobjects.get("data"),update)
+                response = requests.get(os.environ.get(
+                    "API_URL") + f"carlookup/bih?plates={context.args[0]}", timeout=5)
+                res_obj = json.loads(response.text)
+                message.sendmessage(res_obj.get("data"), update)
 
-    except requests.exceptions.RequestException as e:
-        message.sendmessage("Request timed out. Server is not responding.",update)
+    except requests.exceptions.RequestException:
+        message.sendmessage(
+            "Request timed out. Server is not responding.", update)
     except IndexError:
-        message.sendmessage("Missing argument!")
+        message.sendmessage("Missing argument!", update)
 
 
 def croreg(update: Update, context: CallbackContext) -> None:
+    """Function used for fetching croatian plates info and vehicle inspection data"""
     try:
         if len(context.args) == 0:
-            message.sendmessage("Usage:  /croreg ZGXXXXX",update)
+            message.sendmessage("Usage:  /croreg ZGXXXXX", update)
         else:
             if len(context.args[0]) < 5:
-                message.sendmessage("Please enter a query longer than 5 chars.",update)
+                message.sendmessage(
+                    "Please enter a query longer than 5 chars.", update)
             else:
-                response = requests.get(os.environ.get("API_URL") + "carlookup/hr?plates=%s" %context.args[0])
+                response = requests.get(os.environ.get(
+                    "API_URL") + f"carlookup/hr?plates={context.args[0]}", timeout=5)
                 data = []
                 reply = ''
-                jobjects = json.loads(response.text)
-                if jobjects.get("status") == "FAILED":
-                    message.sendmessage("Vehicle Details Not Found!",update)
-                if len(jobjects.get("data").get("vehiclePolicyDetails"))== 0:
-                    message.sendmessage("Vehicle Details Not Found!",update)
+                res_obj = json.loads(response.text)
+                result = res_obj.get("result")
+                if len(result) == 0 or result.get("status") == 404:
+                    message.sendmessage("Vehicle Details Not Found!", update)
                 else:
-                    data.append('Istek Police: '        + str(jobjects.get("data").get("vehiclePolicyDetails").get("policyExpirationDate")))
-                    data.append('Broj Police: '         + str(jobjects.get("data").get("vehiclePolicyDetails").get("policyNumber")))
-                    data.append('VIN: '                 + str(jobjects.get("data").get("vinNumber")))
-                    data.append('Tip Automobila: '      + str(jobjects.get("data").get("vehicleType")))  
-                    data.append('Marka: '               + str(jobjects.get("data").get("vehicleManufacturerName")))
-                    data.append('Model: '               + str(jobjects.get("data").get("model")))
-                    data.append('Linija: '              + str(jobjects.get("data").get("line")))
-                    data.append('Tip Goriva: '          + str(jobjects.get("data").get("fuelType")))
-                    data.append('Godina Proizvodnje: '  + str(jobjects.get("data").get("yearOfManufacture")))
-                    data.append('Boja: '                + str(jobjects.get("data").get("color")))
-                    data.append('Snaga(kW): '           + str(jobjects.get("data").get("kw")))
+                    result = res_obj.get("result")
+                    results = [result.get("policyExpirationDate"),
+                               result.get("policyNumber"),
+                               result.get("vin"),
+                               result.get("type"),
+                               result.get("manufacturer"),
+                               result.get("model"),
+                               result.get("line"),
+                               result.get("fuelType"),
+                               str(result.get("year")),
+                               result.get("color"),
+                               str(result.get("kw"))]
+                    data.append(f"Istek Police: {results[0]}")
+                    data.append(f"Broj Police: {results[1]}")
+                    data.append(f"VIN: {results[2]}")
+                    data.append(f"Tip Automobila: {results[3]}")
+                    data.append(f"Marka: {results[4]}")
+                    data.append(f"Model: {results[5]}")
+                    data.append(f"Linija: {results[6]}")
+                    data.append(f"Tip Goriva: {results[7]}")
+                    data.append(f"Godina Proizvodnje: {results[8]}")
+                    data.append(f"Boja: {results[9]}")
+                    data.append(f"Snaga(kW): {results[10]}")
                     reply = '\n'.join(data)
-                    message.sendmessage(reply,update)
-                    vin = str(jobjects.get("data").get("vinNumber"))
-                    month = str(jobjects.get("data").get("vehiclePolicyDetails").get("policyExpirationDate")).split("-")
-                    response = requests.get(os.environ.get("API_URL") + "carlookup/vin?number=%s"%vin + "&month=%s" %month[1] )
-                    jobjects = json.loads(response.text)
-                    exam_result = re.sub(re.compile('<.*?>') , '', str(jobjects.get("data").get("response"))).replace("Preuzmi u Excel formatu","")
-                    message.sendmessage(exam_result,update)
-    except requests.exceptions.RequestException as e:
-        message.sendmessage("Request timed out. Server is not responding.",update)
-    except KeyError as e:
-        print(e)
+                    message.sendmessage(reply, update)
+                    month = str(results[0]).split("-")
+                    response = requests.get(os.environ.get(
+                        "API_URL") + f"carlookup/vin?number={results[2]}&month={month[1]}", timeout=5)
+                    res_obj = json.loads(response.text)
+                    exam_result = re.sub(re.compile(
+                        '<.*?>'), '', str(res_obj.get("response"))).replace("Preuzmi u Excel formatu", "")
+                    message.sendmessage(exam_result, update)
+    except requests.exceptions.RequestException:
+        message.sendmessage(
+            "Request timed out. Server is not responding.", update)
+    except KeyError as err:
+        print(err)
     except IndexError:
-        message.sendmessage("Missing argument!",update)
+        message.sendmessage("Missing argument!", update)
+    except TypeError:
+        message.sendmessage("TypeError!", update)
