@@ -7,28 +7,6 @@ import requests
 import modules.message.sendmessage as message
 
 
-def bihreg(update: Update, context: CallbackContext) -> None:
-    """Function used for fetching bosnian plates info"""
-    try:
-        if len(context.args) == 0:
-            message.sendmessage("Usage:  /bihreg E94-X-XXX ", update)
-        else:
-            if len(context.args[0]) < 5:
-                message.sendmessage(
-                    "Please enter a query longer than 5 chars.", update)
-            else:
-                response = requests.get(os.environ.get(
-                    "API_URL") + f"carlookup/bih?plates={context.args[0]}", timeout=5)
-                res_obj = json.loads(response.text)
-                message.sendmessage(res_obj.get("data"), update)
-
-    except requests.exceptions.RequestException:
-        message.sendmessage(
-            "Request timed out. Server is not responding.", update)
-    except IndexError:
-        message.sendmessage("Missing argument!", update)
-
-
 def croreg(update: Update, context: CallbackContext) -> None:
     """Function used for fetching croatian plates info and vehicle inspection data"""
     try:

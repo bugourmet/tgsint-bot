@@ -23,8 +23,8 @@ def helpmsg(update, context):
       *Available bot commands:*\n
       /find - Person lookup by name.
       /phone - Person lookup by phone number.
-      /bihreg - Lookup bosnian car license plates.
       /croreg - Lookup croatian car license plates.
+      /pb - Phonebook lookup
     """, parse_mode='Markdown')
 
 
@@ -40,7 +40,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler(
         "find", person.find, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler(
-        "bihreg", cars.bihreg, Filters.user(user_id=users)))
+        "pb", person.phonebook, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler(
         "croreg", cars.croreg, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler(

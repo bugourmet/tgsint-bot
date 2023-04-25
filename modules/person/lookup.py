@@ -8,7 +8,7 @@ import modules.message.sendmessage as message
 
 
 def find(update: Update, context: CallbackContext) -> None:
-    """Function used for finding users by phone number"""
+    """Function used for finding people by phone number"""
     try:
         if len(context.args) == 0:
             message.sendmessage("Usage:  /find Name Surname ", update)
@@ -22,14 +22,21 @@ def find(update: Update, context: CallbackContext) -> None:
                 reply = "User not found!"
             else:
                 for jobj in res_obj.get("result"):
+                    result = [str(jobj.get("fbid")),
+                              str(jobj.get("name")),
+                              str(jobj.get("surname")),
+                              str(jobj.get("sex")),
+                              str(jobj.get("location")),
+                              str(jobj.get("extra"))]
                     data.append('\nPhone Number: +' +
                                 str(jobj.get("phonenum")))
                     data.append(
-                        'FB link:  https://www.facebook.com/' + str(jobj.get("fbid")))
-                    data.append('Name: ' + str(jobj.get("name")))
-                    data.append('Surname: ' + str(jobj.get("surname")))
-                    data.append('Sex: ' + str(jobj.get("sex")))
-                    data.append('Extra Info: ' + str(jobj.get("extra")))
+                        f'FB link:  https://www.facebook.com/{result[0]}')
+                    data.append(f'Name: {result[1]}')
+                    data.append(f'Surname: {result[2]}')
+                    data.append(f'Sex: {result[3]}')
+                    data.append(f'Location: {result[4]}')
+                    data.append(f'Extra Info: {result[5]}')
                     reply = '\n'.join(data)
             message.sendmessage(reply, update)
     except requests.exceptions.RequestException:
@@ -44,7 +51,7 @@ def find(update: Update, context: CallbackContext) -> None:
 
 
 def phone(update: Update, context: CallbackContext) -> None:
-    """Function used for finding users by phone number"""
+    """Function used for finding people by phone number"""
     try:
         if len(context.args) == 0:
             message.sendmessage("Usage:  /phone 385123456789", update)
@@ -82,3 +89,46 @@ def phone(update: Update, context: CallbackContext) -> None:
         print(f"KeyError : {err}")
     except IndexError:
         message.sendmessage("Missing argument!", update)
+
+
+def phonebook(update: Update, context: CallbackContext) -> None:
+    """Function used for finding people on phonebooks"""
+    try:
+        if len(context.args) == 0:
+            message.sendmessage(
+                "Usage:  /pb <name> <surname>  optional: <location>", update)
+        else:
+            data = []
+            reply = ''
+        if len(context.args[0]) < 3 or len(context.args[1]) < 3:
+            message.sendmessage(
+                "Name must be longer than 3 chars.", update)
+        else:
+            if len(context.args) > 2:
+                location = context.args[2]
+            else:
+                location = ""
+            response = requests.get(os.environ.get(
+                "API_URL") + f"phonebook/find?name={context.args[0]}&surname={context.args[1]}&location={location}", timeout=5)
+            res_obj = json.loads(response.text)
+            if len(res_obj.get("result")) == 0:
+                reply = "User not found!"
+            else:
+                for jobj in res_obj.get("result"):
+                    result = [str(jobj.get("name")),
+                              str(jobj.get("address")),
+                              str(jobj.get("number"))]
+                    data.append(f"Name: {result[0]}")
+                    data.append(f"Address: {result[1]}")
+                    data.append(f"Number: {result[2]}\n")
+                    reply = '\n'.join(data)
+            message.sendmessage(reply, update)
+    except requests.exceptions.RequestException:
+        message.sendmessage(
+            "Request timed out. Server is not responding.", update)
+    except KeyError as err:
+        print("KeyError", err)
+    except IndexError:
+        message.sendmessage("Missing argument!", update)
+    except telegram.error.BadRequest as err:
+        print(err)
