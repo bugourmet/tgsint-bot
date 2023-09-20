@@ -37,8 +37,7 @@ TELEGRAM BOT:
 
 1. Phone number lookup.
 2. Name & Surname lookup.
-3. Lookup information on bosnian car licence plates.
-4. Lookup information on croatian car licence plates(tehnical examination and insurance details).
+3. Lookup information on croatian car licence plates(tehnical examination and insurance details).
 
 [tgsint-api](https://github.com/runtimeterrorist/tgsint-api) serves most of the data for the bot.
 
