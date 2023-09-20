@@ -46,3 +46,7 @@
 04/14/2023
 - removed shodan/nmap/whois commands
 - code cleanup & improvements
+
+09/20/2023
+- add logger
+- minor code improvements
