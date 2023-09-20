@@ -28,10 +28,14 @@ def helpmsg(update, context):
     """, parse_mode='Markdown')
 
 
+bot_token = os.environ.get("BOT_TOKEN")
+allowed_users = os.environ.get("USERS").split('|')
+
+
 def main() -> None:
     """Main bot function, creates the updater and registers command handlers"""
-    bot = Updater(os.environ.get("BOT_TOKEN"))
-    users = list(map(int, os.environ.get("USERS").split('|')))
+    bot = Updater(bot_token)
+    users = list(map(int, allowed_users))
 
     dispatcher = bot.dispatcher
     dispatcher.add_error_handler(error)

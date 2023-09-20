@@ -5,6 +5,9 @@ from telegram import Update
 from telegram.ext import CallbackContext
 import requests
 import modules.message.sendmessage as message
+import logging
+
+api_url = os.environ.get('API_URL')
 
 
 def find(update: Update, context: CallbackContext) -> None:
@@ -15,9 +18,9 @@ def find(update: Update, context: CallbackContext) -> None:
         else:
             data = []
             reply = ''
-            response = requests.get(os.environ.get(
-                "API_URL") + f"person/find?name={context.args[0]}&surname={context.args[1]}", timeout=5)
-            res_obj = json.loads(response.text)
+            response = requests.get(
+                api_url + f"person/find?name={context.args[0]}&surname={context.args[1]}", timeout=5)
+            res_obj = response.json()
             if len(res_obj.get("result")) == 0:
                 reply = "User not found!"
             else:
@@ -43,11 +46,11 @@ def find(update: Update, context: CallbackContext) -> None:
         message.sendmessage(
             "Request timed out. Server is not responding.", update)
     except KeyError as err:
-        print("KeyError", err)
+        logging.error("KeyError: %s", err)
     except IndexError:
         message.sendmessage("Missing argument!", update)
     except telegram.error.BadRequest as err:
-        print(err)
+        logging.error(err)
 
 
 def phone(update: Update, context: CallbackContext) -> None:
@@ -58,11 +61,11 @@ def phone(update: Update, context: CallbackContext) -> None:
         else:
             if "+" in context.args[0]:
                 context.args[0] = (context.args[0]).replace("+", "")
-            response = requests.get(os.environ.get(
-                "API_URL") + f"person/phone?number={context.args[0]}", timeout=5)
+            response = requests.get(
+                api_url + f"person/phone?number={context.args[0]}", timeout=5)
             data = []
             reply = ''
-            res_obj = json.loads(response.text)
+            res_obj = response.json()
             if len(res_obj.get("result")) == 0:
                 reply = "User not found!"
             else:
@@ -86,7 +89,7 @@ def phone(update: Update, context: CallbackContext) -> None:
         message.sendmessage(
             "Request timed out. Server is not responding.", update)
     except KeyError as err:
-        print(f"KeyError : {err}")
+        logging.error("KeyError: %s", err)
     except IndexError:
         message.sendmessage("Missing argument!", update)
 
@@ -108,9 +111,9 @@ def phonebook(update: Update, context: CallbackContext) -> None:
                 location = context.args[2]
             else:
                 location = ""
-            response = requests.get(os.environ.get(
-                "API_URL") + f"phonebook/find?name={context.args[0]}&surname={context.args[1]}&location={location}", timeout=5)
-            res_obj = json.loads(response.text)
+            response = requests.get(
+                api_url + f"phonebook/find?name={context.args[0]}&surname={context.args[1]}&location={location}", timeout=5)
+            res_obj = response.json()
             if len(res_obj.get("result")) == 0:
                 reply = "User not found!"
             else:
@@ -127,8 +130,9 @@ def phonebook(update: Update, context: CallbackContext) -> None:
         message.sendmessage(
             "Request timed out. Server is not responding.", update)
     except KeyError as err:
-        print("KeyError", err)
+        logging.error("KeyError: %s", err)
+
     except IndexError:
         message.sendmessage("Missing argument!", update)
     except telegram.error.BadRequest as err:
-        print(err)
+        logging.error(err)

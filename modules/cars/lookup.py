@@ -5,6 +5,9 @@ from telegram import Update
 from telegram.ext import CallbackContext
 import requests
 import modules.message.sendmessage as message
+import logging
+
+api_url = os.environ.get('API_URL')
 
 
 def croreg(update: Update, context: CallbackContext) -> None:
@@ -17,11 +20,11 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 message.sendmessage(
                     "Please enter a query longer than 5 chars.", update)
             else:
-                response = requests.get(os.environ.get(
-                    "API_URL") + f"carlookup/hr?plates={context.args[0]}", timeout=5)
+                response = requests.get(
+                    api_url + f"carlookup/hr?plates={context.args[0]}", timeout=5)
                 data = []
                 reply = ''
-                res_obj = json.loads(response.text)
+                res_obj = response.json()
                 result = res_obj.get("result")
                 if len(result) == 0 or result.get("status") == 404:
                     message.sendmessage("Vehicle Details Not Found!", update)
@@ -52,9 +55,9 @@ def croreg(update: Update, context: CallbackContext) -> None:
                     reply = '\n'.join(data)
                     message.sendmessage(reply, update)
                     month = str(results[0]).split("-")
-                    response = requests.get(os.environ.get(
-                        "API_URL") + f"carlookup/vin?number={results[2]}&month={month[1]}", timeout=5)
-                    res_obj = json.loads(response.text)
+                    response = requests.get(
+                        api_url + f"carlookup/vin?number={results[2]}&month={month[1]}", timeout=5)
+                    res_obj = response.json()
                     exam_result = re.sub(re.compile(
                         '<.*?>'), '', str(res_obj.get("response"))).replace("Preuzmi u Excel formatu", "")
                     message.sendmessage(exam_result, update)
@@ -62,7 +65,7 @@ def croreg(update: Update, context: CallbackContext) -> None:
         message.sendmessage(
             "Request timed out. Server is not responding.", update)
     except KeyError as err:
-        print(err)
+        logging.error(err)
     except IndexError:
         message.sendmessage("Missing argument!", update)
     except TypeError:
