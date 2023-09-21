@@ -39,7 +39,7 @@ TELEGRAM BOT:
 2. Name & Surname lookup.
 3. Lookup information on croatian car licence plates(tehnical examination and insurance details).
 
-[tgsint-api](https://github.com/runtimeterrorist/tgsint-api) serves most of the data for the bot.
+[tgsint-api](https://github.com/runtimeterrorist/tgsint-api) serves the data for the bot.
 
 ## Changelog
 
