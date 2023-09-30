@@ -1,6 +1,11 @@
 # tgsint-bot
 
-[!!under heavy development!!]
+[![GitHub stars](https://img.shields.io/github/stars/runtimeterrorist/tgsint-bot.svg)](https://github.com/runtimeterrorist/tgsint-bot/stargazers)
+[![GitHub license](https://img.shields.io/github/license/runtimeterrorist/tgsint-bot.svg)](https://github.com/runtimeterrorist/tgsint-bot/blob/master/LICENSE)
+[![GitHub forks](https://img.shields.io/github/forks/runtimeterrorist/tgsint-bot.svg)](https://github.com/runtimeterrorist/tgsint-bot/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/runtimeterrorist/tgsint-bot.svg)](https://github.com/runtimeterrorist/tgsint-bot/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/runtimeterrorist/tgsint-bot.svg)](https://github.com/runtimeterrorist/tgsint-bot/pulls)
+[![GitHub last commit](https://img.shields.io/github/last-commit/runtimeterrorist/tgsint-bot.svg)](https://github.com/runtimeterrorist/tgsint-bot/commits/master)
 
 tgsint is a OSINT telegram bot written in python.
 
