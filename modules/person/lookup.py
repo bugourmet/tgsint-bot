@@ -17,22 +17,22 @@ def find(update: Update,context: CallbackContext) -> None:
         if len(context.args) == 0:
             message.sendmessage("Usage:  /find Name Surname ", update)
         else:
+            data = []
+            reply = ''
             query = {
                 "name": {"$regex": f"{context.args[0]}", "$options": "i"},
                 "surname": {"$regex": f"{context.args[1]}", "$options": "i"}
             }
             results = list(collection.find(query))
             for result in results:
-                formatted_message = (
-                f"*ID: * {result.get('_id')}\n"
-                f"*Phone Number: * {result.get('phonenum')}\n"
-                f"*Facebook ID: * {result.get('fbid')}\n"
-                f"*Name: * {result.get('name')} {result.get('surname')}\n"
-                f"*Sex: * {result.get('sex')}\n"
-                f"*Location: * {result.get('location')}\n"
-                f"*Extra: * {result.get('extra')}\n"
-            )
-                message.sendmessage(formatted_message,update)
+                data.append(f"\n*Phone Number: * {result.get('phonenum')}")
+                data.append(f"*Facebook ID: * {result.get('fbid')}")
+                data.append(f"*Name: * {result.get('name')} {result.get('surname')}")
+                data.append(f"*Sex: * {result.get('sex')}")
+                data.append(f"*Location: * {result.get('location')}")
+                data.append(f"*Extra: * {result.get('extra')}")
+                reply = '\n'.join(data)
+            message.sendmessage(reply,update)
     except KeyError as err:
         logging.error("KeyError: %s", err)
     except IndexError:
@@ -46,19 +46,19 @@ def phone(update: Update, context: CallbackContext) -> None:
         else:
             if "+" in context.args[0]:
                 context.args[0] = (context.args[0]).replace("+", "")
+            data = []
+            reply = ''
             query = {"phonenum": context.args[0]}
             results = list(collection.find(query))
             for result in results:
-                formatted_message = (
-                f"*ID: * {result.get('_id')}\n"
-                f"*Phone Number: * {result.get('phonenum')}\n"
-                f"*Facebook ID: * {result.get('fbid')}\n"
-                f"*Name: * {result.get('name')} {result.get('surname')}\n"
-                f"*Sex: * {result.get('sex')}\n"
-                f"*Location: * {result.get('location')}\n"
-                f"*Extra: * {result.get('extra')}\n"
-            )
-                message.sendmessage(formatted_message,update)
+                data.append(f"\n*Phone Number: * {result.get('phonenum')}")
+                data.append(f"*Facebook ID: * {result.get('fbid')}")
+                data.append(f"*Name: * {result.get('name')} {result.get('surname')}")
+                data.append(f"*Sex: * {result.get('sex')}")
+                data.append(f"*Location: * {result.get('location')}")
+                data.append(f"*Extra: * {result.get('extra')}")
+                reply = '\n'.join(data)
+                message.sendmessage(reply,update)
     except KeyError as err:
         logging.error("KeyError: %s", err)
     except IndexError:
