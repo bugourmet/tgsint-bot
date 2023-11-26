@@ -1,14 +1,29 @@
-import os
-import json
-import re
 from telegram import Update
 from telegram.ext import CallbackContext
 import requests
 import modules.message.sendmessage as message
 import logging
 
-api_url = os.environ.get('API_URL')
+# def checkvin(vin, month,update: Update):
+#     """Function used for fetching vehicle inspection data"""
+#     try:
+#         url = "https://www.cvh.hr/Umbraco/Surface/TabsSurface/mot"
+#         data = {"VIN": vin, "month": month}
+#         headers = {
+#             "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+#         }
+#         encoded_data = urlencode(data)
 
+#         response = requests.post(url, data=encoded_data, headers=headers, verify=False,timeout=5)
+#         if response.ok:
+#             data = response.json()
+#             return data
+#         else:
+#             response.raise_for_status()
+#     except requests.exceptions.RequestException:
+#         message.sendmessage(
+#             "Request timed out. Server is not responding.", update)
+#         return None
 
 def croreg(update: Update, context: CallbackContext) -> None:
     """Function used for fetching croatian plates info and vehicle inspection data"""
@@ -20,47 +35,29 @@ def croreg(update: Update, context: CallbackContext) -> None:
                 message.sendmessage(
                     "Please enter a query longer than 5 chars.", update)
             else:
-                response = requests.get(
-                    api_url + f"carlookup/hr?plates={context.args[0]}", timeout=5)
-                data = []
-                reply = ''
-                res_obj = response.json()
-                result = res_obj.get("result")
-                if len(result) == 0 or result.get("status") == 404:
-                    message.sendmessage("Vehicle Details Not Found!", update)
+                api_url = f"https://api.laqo.hr/webshop/backend/vehicle-api/v2/vehicles?plateNumber={context.args[0]}"
+                response = requests.get(api_url,timeout=5)
+
+                if response.ok:
+                    data = response.json()
+                    formatted_message = (
+                    f"*Istek Police: * {data.get('policyExpirationDate')}\n"
+                    f"*Broj Police: * {data.get('policyNumber')}\n"
+                    f"*VIN: * {data.get('vin')}\n"
+                    f"*Tip Automobila: * {data.get('type')}\n"
+                    f"*Marka: * {data.get('manufacturer')}\n"
+                    f"*Model: * {data.get('model')}\n"
+                    f"*Linija: * {data.get('line')}\n"
+                    f"*Tip Goriva: * {data.get('fuelType')}\n"
+                    f"*Godina Proizvodnje: * {data.get('year')}\n"
+                    f"*Boja: * {data.get('color')}\n"
+                    f"*Snaga(kW): * {data.get('kw')}\n"
+                    )
+                    message.sendmessage(formatted_message, update)
+
                 else:
-                    result = res_obj.get("result")
-                    results = [result.get("policyExpirationDate"),
-                               result.get("policyNumber"),
-                               result.get("vin"),
-                               result.get("type"),
-                               result.get("manufacturer"),
-                               result.get("model"),
-                               result.get("line"),
-                               result.get("fuelType"),
-                               str(result.get("year")),
-                               result.get("color"),
-                               str(result.get("kw"))]
-                    data.append(f"Istek Police: {results[0]}")
-                    data.append(f"Broj Police: {results[1]}")
-                    data.append(f"VIN: {results[2]}")
-                    data.append(f"Tip Automobila: {results[3]}")
-                    data.append(f"Marka: {results[4]}")
-                    data.append(f"Model: {results[5]}")
-                    data.append(f"Linija: {results[6]}")
-                    data.append(f"Tip Goriva: {results[7]}")
-                    data.append(f"Godina Proizvodnje: {results[8]}")
-                    data.append(f"Boja: {results[9]}")
-                    data.append(f"Snaga(kW): {results[10]}")
-                    reply = '\n'.join(data)
-                    message.sendmessage(reply, update)
-                    month = str(results[0]).split("-")
-                    response = requests.get(
-                        api_url + f"carlookup/vin?number={results[2]}&month={month[1]}", timeout=5)
-                    res_obj = response.json()
-                    exam_result = re.sub(re.compile(
-                        '<.*?>'), '', str(res_obj.get("response"))).replace("Preuzmi u Excel formatu", "")
-                    message.sendmessage(exam_result, update)
+                    message.sendmessage(
+                    "Failed to retrieve data from the API.", update)
     except requests.exceptions.RequestException:
         message.sendmessage(
             "Request timed out. Server is not responding.", update)

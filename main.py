@@ -5,12 +5,13 @@ from dotenv import load_dotenv
 import modules.person.lookup as person
 import modules.cars.lookup as cars
 
-
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-load_dotenv()
 
+load_dotenv()
+bot_token = os.environ.get("BOT_TOKEN")
+allowed_users = os.environ.get("USERS").split('|')
 
 def error(update, context):
     """error logger"""
@@ -24,12 +25,7 @@ def helpmsg(update, context):
       /find - Person lookup by name.
       /phone - Person lookup by phone number.
       /croreg - Lookup croatian car license plates.
-      /pb - Phonebook lookup
     """, parse_mode='Markdown')
-
-
-bot_token = os.environ.get("BOT_TOKEN")
-allowed_users = os.environ.get("USERS").split('|')
 
 
 def main() -> None:
@@ -43,8 +39,6 @@ def main() -> None:
         "phone", person.phone, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler(
         "find", person.find, Filters.user(user_id=users)))
-    dispatcher.add_handler(CommandHandler(
-        "pb", person.phonebook, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler(
         "croreg", cars.croreg, Filters.user(user_id=users)))
     dispatcher.add_handler(CommandHandler(
