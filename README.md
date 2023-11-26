@@ -18,16 +18,16 @@ Install necessary dependencies.
 pip install -r requirements.txt
 ```
 
-Set up [tgsint-api](https://github.com/runtimeterrorist/tgsint-api).
-
 ## Configuration
 
 #### Open `.env` file and add required keys/tokens...
 
-Create a Telegram bot using @botfather and get your bot token.
+Create a Telegram bot using `@botfather` and get your bot token.
 
-Change USERS`"1234567890|123456789"` to your own telegram account id/s or simply remove user filter at the dispatcher if you want your bot to be accessible by everyone.  
+Change USERS `"1234567890|123456789"` to your own telegram account id/s or simply remove user filter at the dispatcher if you want your bot to be accessible by everyone.  
 This part filters incoming messages (commands) from users with above specified IDs.
+
+Check [tgsint-scripts](https://github.com/runtimeterrorist/tgsint-scripts/) for data format.
 
 ## Usage
 

@@ -50,3 +50,7 @@
 09/20/2023
 - add logger
 - minor code improvements
+
+11/26/2023
+- removed the need for tgsint-api,requests are sent directly from the bot
+- disabled checking for car tech inspection data due to api changes(captcha required)
