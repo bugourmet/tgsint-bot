@@ -7,9 +7,11 @@ import pymongo
 
 api_url = os.environ.get('API_URL')
 mongo_url = os.environ.get('MONGODB_URL')
+database_name = os.environ.get("DB_NAME")
+collection_name = os.environ.get("COLLECTION_NAME")
 client = pymongo.MongoClient(mongo_url)
-database = client["database"]
-collection = database["persons"]
+database = client[database_name]
+collection = database[collection_name]
 
 def find(update: Update,context: CallbackContext) -> None:
     """Function used for finding people by phone number"""
