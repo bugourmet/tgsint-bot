@@ -5,7 +5,6 @@ from telegram.ext import CallbackContext
 import modules.message.sendmessage as message
 import pymongo
 
-api_url = os.environ.get('API_URL')
 mongo_url = os.environ.get('MONGODB_URL')
 database_name = os.environ.get("DB_NAME")
 collection_name = os.environ.get("COLLECTION_NAME")
