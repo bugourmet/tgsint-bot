@@ -1,4 +1,11 @@
-python-dotenv==0.20.0
-requests==2.32.4
+python-dotenv==1.2.4
+requests==2.34.2
 python-telegram-bot==13.13
-pymongo==4.6.3
+pymongo==4.19.0
+dnspython==2.9.0
+tornado==6.5.10
+urllib3==2.8.0
+certifi==2026.10.19
+idna==3.20
+# APScheduler 3.6.3 (pinned by python-telegram-bot 13) needs pkg_resources, removed in setuptools 81
+setuptools==80.10.2
